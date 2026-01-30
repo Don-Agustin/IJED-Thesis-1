@@ -100,5 +100,5 @@ The **School Management System** is a web application developed using **ASP.NET 
 ## How to Run the Project 💻
 1. Clone the repository:
    ```bash
-   git clone https://github.com/pacheco4480/SchoolManagementSystem.git
+   git clone git clone https://github.com/Don-Agustin/IJED-Thesis-1.git
 "# IJED-Thesis-1" 
