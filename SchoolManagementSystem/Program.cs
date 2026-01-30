@@ -19,7 +19,9 @@ namespace SchoolManagementSystem
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            
+            builder.Services.AddDbContext<SchoolDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
             builder.Logging.ClearProviders(); 
             builder.Logging.AddConsole(); 
             builder.Logging.AddFile("Logs/schoolmanagementsystem-{Date}.txt"); 
