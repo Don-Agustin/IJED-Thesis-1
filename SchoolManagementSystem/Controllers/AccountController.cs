@@ -21,6 +21,73 @@ namespace SchoolManagementSystem.Controllers
         private readonly IMailHelper _mailHelper;
         private readonly IConfiguration _configuration;
 
+        public IActionResult LoginSelection()   
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult EmailLogin()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            ViewData["LoginType"] = "email";
+            return View("Login");   // reuses Views/Account/Login.cshtml
+        }
+
+        [HttpGet]
+        public IActionResult AdminLogin()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            ViewData["LoginType"] = "admin";
+            return View("Login");   // reuses Views/Account/Login.cshtml
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel model, string loginType = "email")
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _userHelper.LoginAsync(model);
+
+                if (result.Succeeded)
+                {
+                    var user = await _userHelper.GetUserByEmailAsync(model.Username);
+                    var userRole = await _userHelper.GetRoleAsync(user);
+
+                    switch (userRole)
+                    {
+                        case "Admin":
+                            return RedirectToAction("AdminDashboard", "Dashboard");
+                        case "Employee":
+                            return RedirectToAction("EmployeeDashboard", "Dashboard");
+                        case "Teacher":
+                            return RedirectToAction("TeacherDashboard", "Dashboard");
+                        case "Student":
+                            return RedirectToAction("StudentDashboard", "Dashboard");
+                        default:
+                            return RedirectToAction("Index", "Home");
+                    }
+                }
+
+                ModelState.AddModelError(string.Empty, "Invalid email or password.");
+            }
+
+            // Re-display the form with the correct title/type on validation failure
+            ViewData["LoginType"] = loginType;
+            return View("Login", model);
+        }
+
+
         public AccountController(
             IUserHelper userHelper,
             IMailHelper mailHelper,

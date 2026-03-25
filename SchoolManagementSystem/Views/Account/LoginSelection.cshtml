@@ -1,0 +1,46 @@
+﻿@{
+    Layout = "_LayoutLogin";
+    ViewData["Title"] = "Login";
+}
+
+<div class="login-selection-wrapper">
+    <!-- Faded watermark logo -->
+    <div class="login-watermark">
+        <img src="~/images/seal.png" alt="IJED Seal" />
+    </div>
+
+    <!-- Selection card -->
+    <div class="login-selection-card" role="main">
+        <div class="login-card-logo">
+            <img src="~/images/seal.png" alt="Infant Jesus Learning Academy" />
+        </div>
+        <h1 class="login-card-title">Welcome</h1>
+        <p class="login-card-subtitle">Infant Jesus Learning Academy</p>
+
+        <div class="login-selection-buttons">
+            <a href="@Url.Action("EmailLogin", "Account")" class="login-btn login-btn--email">
+                <span class="login-btn-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <rect x="2" y="4" width="20" height="16" rx="2" />
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
+                </span>
+                Email Log in
+            </a>
+
+            <a href="@Url.Action("AdminLogin", "Account")" class="login-btn login-btn--admin">
+                <span class="login-btn-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M12 2a5 5 0 1 0 5 5A5 5 0 0 0 12 2zm0 8a3 3 0 1 1 3-3 3 3 0 0 1-3 3z" />
+                        <path d="M20 21a8 8 0 1 0-16 0" />
+                    </svg>
+                </span>
+                Admin Log in
+            </a>
+        </div>
+    </div>
+</div>
