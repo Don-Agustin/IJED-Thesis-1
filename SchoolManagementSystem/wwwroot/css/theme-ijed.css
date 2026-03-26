@@ -1,0 +1,695 @@
+/* =================================================================
+   theme-ijed.css  —  IJED Global Theme Override
+   
+   PURPOSE:
+     Refactors the public site (Home page, Navbar, Footer) AND the
+     authenticated dashboard to match the deep-maroon login UI.
+   
+   HOW IT WORKS:
+     This file is loaded AFTER all other stylesheets so it overrides
+     colours and decorative styles without changing layout or structure.
+   
+   WHAT IT CHANGES (styling only, no layout/functionality touched):
+     1. CSS custom properties  → swap yellow/blue palette → maroon/red
+     2. Header / Navbar        → transparent → maroon gradient on scroll
+     3. Banner section         → overlay tint to maroon
+     4. Buttons                → rounded, maroon, smooth hover
+     5. Cards / icon-boxes     → rounded corners, refined shadows
+     6. Footer                 → deep maroon background
+     7. Dashboard sidebar      → maroon instead of near-black
+     8. Dashboard navbar       → matches maroon header
+     9. Breadcrumb             → subtle maroon tint
+    10. Seal watermark          → faded background brand mark
+    11. Transitions             → smooth across all interactive elements
+   
+   FILES MODIFIED (besides this new file):
+     - _Layout.cshtml          → added <link> for this file + seal watermark
+     - _Dashboard.cshtml       → added <link> for this file
+     - _Navbar.cshtml          → logo src changed to ~/Image/seal.png
+   ================================================================= */
+
+
+/* ================================================================
+   1. CSS CUSTOM PROPERTIES — Replace the old yellow/blue palette
+      with the IJED deep maroon/red identity
+   ================================================================ */
+:root {
+  /* Primary brand colour — deep maroon red */
+  --primary-color:          #7b1e2b;
+  /* Secondary / hover colour — slightly lighter red */
+  --secondary-color:        #a94442;
+  /* Accent highlight used on hover states */
+  --accent-color:           #c0566a;
+
+  /* Page background — off-white so red theme pops */
+  --bg-color:               #faf8f8;
+  /* Main heading text */
+  --heading-color:          #1a0a0e;
+  /* Body / paragraph text */
+  --font-color:             #5a4a4e;
+
+  /* Banner dark overlay — replaces the old white wash */
+  --banner-layer:           rgba(60, 0, 16, 0.68);
+
+  /* Gradient used on banner blob shape */
+  --gradient-color-banner:  linear-gradient(135deg, #7b1e2b 0%, #c0566a 100%);
+
+  /* Consistent border radii */
+  --border-radius:          12px;
+  --border-radius-full:     30px;
+
+  /* Sidebar width (unchanged) */
+  --sidebar-width:          250px;
+
+  /* Maroon gradient used in sidebar, header etc. */
+  --maroon-gradient:        linear-gradient(160deg, #3a000e 0%, #7b1e2b 60%, #a94442 100%);
+}
+
+
+/* ================================================================
+   2. BODY / PAGE BASE
+   ================================================================ */
+
+/* Public pages — very light warm off-white */
+body {
+  background-color: var(--bg-color);
+  color: var(--font-color);
+}
+
+
+/* ================================================================
+   3. NAVBAR / HEADER
+   ================================================================ */
+
+/* Default (top of page) — transparent so banner shows through */
+#site-header {
+  background: transparent;
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* Scrolled state — maroon gradient */
+header.nav-fixed {
+  background: var(--maroon-gradient) !important;
+  box-shadow: 0 4px 16px rgba(58, 0, 14, 0.35) !important;
+}
+
+/* Nav links — white so readable on dark header */
+.navbar-expand-lg .navbar-nav .nav-link,
+.nav-fixed .navbar-expand-lg .navbar-nav .nav-link {
+  color: #f5e8ea !important;
+  font-weight: 500;
+  transition: color 0.25s ease;
+}
+
+.navbar-expand-lg .navbar-nav .nav-link:hover,
+.nav-fixed .navbar-expand-lg .navbar-nav .nav-link:hover {
+  color: #fff !important;
+}
+
+/* Brand / logo text */
+.navbar-brand {
+  color: #fff !important;
+  font-weight: 700;
+  transition: opacity 0.2s;
+}
+
+.navbar-brand:hover {
+  opacity: 0.85;
+}
+
+/* Dropdown menus */
+.navbar .dropdown-menu {
+  background: #fff;
+  border: none;
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 24px rgba(58, 0, 14, 0.18);
+}
+
+.navbar .dropdown-item {
+  color: var(--heading-color);
+  transition: background 0.2s, color 0.2s;
+}
+
+.navbar .dropdown-item:hover {
+  background: #f5e8ea;
+  color: var(--primary-color);
+}
+
+/* Mobile hamburger icon */
+.navbar-toggler {
+  border-color: rgba(255,255,255,0.5);
+}
+
+.navbar-toggler-icon {
+  color: #fff !important;
+}
+
+
+/* ================================================================
+   4. BANNER SECTION
+   ================================================================ */
+
+/* Swap the old white/light overlay for a rich maroon tint */
+.w3l-banner:before {
+  background: var(--banner-layer) !important;
+}
+
+/* Banner heading — white on dark overlay */
+.w3l-banner h3,
+.w3l-banner h3 span,
+.w3l-banner p.banner-sub,
+.banner-content h3,
+.banner-content p {
+  color: #fff !important;
+}
+
+/* Floating info box on the banner image */
+.imginfo__box {
+  background: rgba(123, 30, 43, 0.92);
+  border-radius: var(--border-radius);
+  color: #fff;
+}
+
+.imginfo__box h6,
+.imginfo__box p,
+.imginfo__box a {
+  color: #fff !important;
+}
+
+/* Blob shape behind banner image */
+.sub-banner-image {
+  background: var(--gradient-color-banner);
+}
+
+
+/* ================================================================
+   5. BUTTONS
+   ================================================================ */
+
+/* Primary CTA button */
+.btn-style {
+  background: var(--maroon-gradient) !important;
+  color: #fff !important;
+  border-radius: var(--border-radius-full) !important;
+  box-shadow: 0 4px 14px rgba(123, 30, 43, 0.35);
+  transition: all 0.3s ease !important;
+  border: none !important;
+}
+
+.btn-style:hover {
+  background: linear-gradient(135deg, #a94442, #7b1e2b) !important;
+  box-shadow: 0 6px 20px rgba(123, 30, 43, 0.45);
+  transform: translateY(-2px);
+  color: #fff !important;
+}
+
+/* Secondary style */
+.btn-style-2 {
+  background: #fff !important;
+  color: var(--primary-color) !important;
+  border: 2px solid var(--primary-color) !important;
+  border-radius: var(--border-radius-full) !important;
+  transition: all 0.3s ease !important;
+}
+
+.btn-style-2:hover {
+  background: var(--primary-color) !important;
+  color: #fff !important;
+}
+
+/* btn-style-secondary used for "Browse more" */
+.btn-style-secondary {
+  background: var(--primary-color) !important;
+  color: #fff !important;
+  border-radius: var(--border-radius-full) !important;
+  transition: all 0.3s ease !important;
+}
+
+.btn-style-secondary:hover {
+  background: var(--secondary-color) !important;
+}
+
+/* Bootstrap buttons inside dashboard / forms */
+.btn-success {
+  background: var(--maroon-gradient) !important;
+  border-color: var(--primary-color) !important;
+  border-radius: var(--border-radius-full) !important;
+  transition: opacity 0.2s, transform 0.15s !important;
+}
+
+.btn-success:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: var(--maroon-gradient) !important;
+  border-color: var(--primary-color) !important;
+  border-radius: var(--border-radius-full) !important;
+}
+
+.btn-danger {
+  border-radius: var(--border-radius-full) !important;
+}
+
+.btn-secondary,
+.btn-info {
+  border-radius: var(--border-radius-full) !important;
+  transition: all 0.2s ease !important;
+}
+
+/* "Know Details" inline link-button */
+.btn-style-primary {
+  color: var(--primary-color) !important;
+  font-weight: 600;
+  transition: color 0.2s !important;
+}
+
+.btn-style-primary:hover {
+  color: var(--secondary-color) !important;
+}
+
+
+/* ================================================================
+   6. ICON BOXES (Key Features section)
+   ================================================================ */
+
+.services-w3l-block .icon-box {
+  border-radius: var(--border-radius) !important;
+  box-shadow: 0 4px 16px rgba(123, 30, 43, 0.1);
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+
+.services-w3l-block .icon-box:hover {
+  box-shadow: 0 8px 28px rgba(123, 30, 43, 0.2);
+  transform: translateY(-4px);
+}
+
+/* Icon colour — replace old yellow/blue with maroon tones */
+.services-w3l-block .icon-box-clr-1 .icon i { color: #7b1e2b !important; }
+.services-w3l-block .icon-box-clr-2 .icon i { color: #a94442 !important; }
+.services-w3l-block .icon-box-clr-3 .icon i { color: #c0566a !important; }
+.services-w3l-block .icon-box-clr-4 .icon i { color: #d4748a !important; }
+
+.services-w3l-block .icon-box-clr-1:hover { border-color: #7b1e2b !important; }
+.services-w3l-block .icon-box-clr-2:hover { border-color: #a94442 !important; }
+.services-w3l-block .icon-box-clr-3:hover { border-color: #c0566a !important; }
+.services-w3l-block .icon-box-clr-4:hover { border-color: #d4748a !important; }
+
+/* Feature titles */
+.services-w3l-block .title a {
+  color: var(--heading-color) !important;
+  transition: color 0.2s;
+}
+.services-w3l-block .title a:hover {
+  color: var(--primary-color) !important;
+}
+
+
+/* ================================================================
+   7. COURSE / CLASS CARDS
+   ================================================================ */
+
+.w3l-grids-block-5 .coursecard-single {
+  border-radius: var(--border-radius) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+  overflow: hidden;
+}
+
+.w3l-grids-block-5 .coursecard-single:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 28px rgba(123, 30, 43, 0.18);
+}
+
+/* Course background sections */
+.home-course-bg {
+  background: #faf0f2 !important;
+}
+
+
+/* ================================================================
+   8. WHY CHOOSE / CONTENT BLOCKS
+   ================================================================ */
+
+.w3l-service-1 .content23-grid {
+  border-radius: var(--border-radius) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+
+.w3l-service-1 .content23-grid:hover {
+  box-shadow: 0 8px 24px rgba(123, 30, 43, 0.15) !important;
+  transform: translateY(-3px);
+}
+
+.w3l-service-1 .content23-grid:before {
+  background: var(--maroon-gradient) !important;
+}
+
+
+/* ================================================================
+   9. STATS COUNTER SECTION
+   ================================================================ */
+
+.w3-stats .counter i {
+  color: var(--primary-color) !important;
+}
+
+.timer.count-number {
+  color: var(--primary-color) !important;
+}
+
+
+/* ================================================================
+  10. SECTION LABELS & TITLES
+   ================================================================ */
+
+/* "KEY FEATURES", "BEST COURSES" etc. uppercase labels */
+.title-main p {
+  color: var(--primary-color) !important;
+  font-weight: 600;
+}
+
+/* Highlight span inside h3.title-style */
+h3.title-style span {
+  color: var(--primary-color) !important;
+}
+
+/* Check-circle icons in bullet lists */
+.list-style-lis li i.fa-check-circle {
+  color: var(--primary-color) !important;
+}
+
+
+/* ================================================================
+  11. CALL TO ACTION BANNER
+   ================================================================ */
+
+.w3l-call-to-action-6 {
+  background: var(--maroon-gradient) !important;
+}
+
+.w3l-call-to-action-6 .title-big,
+.w3l-call-to-action-6 p {
+  color: #fff !important;
+}
+
+.w3l-call-to-action-6 .phone-sec i,
+.w3l-call-to-action-6 a.call-style-w3 {
+  color: #ffd0d8 !important;
+}
+
+
+/* ================================================================
+  12. FOOTER
+   ================================================================ */
+
+.w3l-footer-29-main {
+  background: linear-gradient(160deg, #2a0008 0%, #5a1020 60%, #7b1e2b 100%) !important;
+  color: #f5e8ea !important;
+}
+
+.w3l-footer-29-main h6.footer-title-29 {
+  color: #fff !important;
+  border-bottom-color: rgba(255,255,255,0.2) !important;
+}
+
+.w3l-footer-29-main .footer-list-29 p,
+.w3l-footer-29-main .footer-list-29 ul li a,
+.w3l-footer-29-main .footer-list-29 p a {
+  color: #f0d0d8 !important;
+  transition: color 0.2s;
+}
+
+.w3l-footer-29-main .footer-list-29 ul li a:hover,
+.w3l-footer-29-main .footer-list-29 p a:hover {
+  color: #fff !important;
+}
+
+p.copy-footer-29 {
+  color: #d4a0a8 !important;
+  border-top: 1px solid rgba(255,255,255,0.12);
+}
+
+p.copy-footer-29 a {
+  color: #f0d0d8 !important;
+}
+
+p.copy-footer-29 a:hover {
+  color: #fff !important;
+}
+
+/* Subscribe input */
+.w3l-footer-29-main input[type="email"] {
+  background: rgba(255,255,255,0.12) !important;
+  border-color: rgba(255,255,255,0.25) !important;
+  color: #fff !important;
+}
+
+.w3l-footer-29-main input[type="email"]::placeholder {
+  color: rgba(255,255,255,0.55);
+}
+
+.w3l-footer-29-main button.button-style {
+  background: var(--accent-color) !important;
+  transition: background 0.2s;
+}
+
+.w3l-footer-29-main button.button-style:hover {
+  background: #fff !important;
+  color: var(--primary-color) !important;
+}
+
+
+/* ================================================================
+  13. DASHBOARD — SIDEBAR
+   ================================================================ */
+
+/* Sidebar background — deep maroon instead of near-black */
+.sidebar {
+  background: var(--maroon-gradient) !important;
+  border-right: none;
+  box-shadow: 4px 0 20px rgba(58, 0, 14, 0.3);
+}
+
+/* Sidebar menu links */
+.sidebar-menu li a {
+  color: #f5e8ea !important;
+  border-radius: 8px;
+  padding: 6px 10px;
+  transition: background 0.25s, transform 0.2s, color 0.2s !important;
+}
+
+.sidebar-menu li a:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #fff !important;
+  transform: translateX(5px) !important;
+  border-radius: 8px;
+}
+
+/* Logo area inside sidebar */
+.sidebar-logo {
+  padding-top: 10px;
+}
+
+.sidebar-logo img {
+  /* seal.png is circular — display it nicely */
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.3);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+  max-width: 120px !important;
+}
+
+
+/* ================================================================
+  14. DASHBOARD — NAVBAR (top bar inside authenticated area)
+   ================================================================ */
+
+/* The dashboard uses .navbar class in _Dashboard layout */
+.content-wrapper .navbar,
+.navbar.bg-light {
+  background: linear-gradient(90deg, #7b1e2b, #a94442) !important;
+  box-shadow: 0 2px 10px rgba(58, 0, 14, 0.2);
+}
+
+/* Nav links inside dashboard top bar */
+.content-wrapper .navbar .nav-link,
+.content-wrapper .navbar .navbar-brand {
+  color: #fff !important;
+}
+
+
+/* ================================================================
+  15. DASHBOARD — BREADCRUMB
+   ================================================================ */
+
+.breadcrumb {
+  background: linear-gradient(90deg, #5a1020, #7b1e2b) !important;
+  border-radius: var(--border-radius) !important;
+  color: #f5e8ea !important;
+  box-shadow: 0 2px 8px rgba(58,0,14,0.15);
+}
+
+.breadcrumb a {
+  color: #f5e8ea !important;
+  transition: color 0.2s;
+}
+
+.breadcrumb a:hover {
+  color: #fff !important;
+}
+
+.breadcrumb span {
+  color: #d4a0a8 !important;
+}
+
+
+/* ================================================================
+  16. DASHBOARD — CARDS (Bootstrap .card used in tables/lists)
+   ================================================================ */
+
+.card {
+  border-radius: var(--border-radius) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  border: none !important;
+  transition: transform 0.3s, box-shadow 0.3s !important;
+}
+
+.card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 24px rgba(123, 30, 43, 0.15) !important;
+  border: none !important;
+}
+
+/* Card header accent strip */
+.card-header {
+  background: linear-gradient(90deg, #7b1e2b, #a94442) !important;
+  color: #fff !important;
+  border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+  border: none !important;
+  font-weight: 600;
+}
+
+
+/* ================================================================
+  17. CONTENT WRAPPER (dashboard main area)
+   ================================================================ */
+
+.content-wrapper {
+  background-color: #faf8f8 !important;
+}
+
+
+/* ================================================================
+  18. TABLES
+   ================================================================ */
+
+/* Table head strip */
+.table thead th {
+  background: linear-gradient(90deg, #7b1e2b, #a94442) !important;
+  color: #fff !important;
+  border: none !important;
+  font-weight: 600;
+}
+
+.table tbody tr:hover {
+  background: #fdf0f2 !important;
+}
+
+
+/* ================================================================
+  19. FORM CONTROLS (inside dashboard forms)
+   ================================================================ */
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(123, 30, 43, 0.15) !important;
+}
+
+
+/* ================================================================
+  20. SEAL WATERMARK — faint background brand mark
+      Applied to .login-page-wrapper already via login-page.css.
+      Here we add it to the dashboard content wrapper too.
+   ================================================================ */
+
+/* Paste seal.png as a very faint centered watermark.
+   Update the path if your seal filename differs. */
+.content-wrapper::before {
+  content: "";
+  position: fixed;
+  top: 50%;
+  left: calc(50% + 125px); /* offset right of sidebar */
+  transform: translate(-50%, -50%);
+  width: 480px;
+  height: 480px;
+  background: url('../Image/seal.png') no-repeat center / contain;
+  opacity: 0.04;  /* very faint — purely decorative */
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Public home page watermark */
+body > .w3l-banner::after {
+  content: "";
+  position: absolute;
+  bottom: -80px;
+  right: -60px;
+  width: 420px;
+  height: 420px;
+  background: url('../Image/seal.png') no-repeat center / contain;
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 0;
+}
+
+
+/* ================================================================
+  21. GLOBAL TRANSITION POLISH
+      Ensures all interactive elements animate smoothly
+   ================================================================ */
+
+a,
+button,
+.btn,
+input[type="submit"],
+.nav-link,
+.dropdown-item,
+.sidebar-menu li a,
+.card,
+.icon-box,
+.coursecard-single {
+  transition: all 0.25s ease !important;
+}
+
+
+/* ================================================================
+  22. LOGOUT BUTTON
+   ================================================================ */
+
+.logout-btn {
+  background: linear-gradient(135deg, #a94442, #7b1e2b) !important;
+  border-radius: var(--border-radius-full) !important;
+  color: #fff !important;
+  border: none !important;
+  padding: 8px 20px !important;
+  font-weight: 600;
+}
+
+.logout-btn:hover {
+  background: linear-gradient(135deg, #7b1e2b, #3a000e) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(58,0,14,0.3) !important;
+}
+
+
+/* ================================================================
+  23. BADGE / NOTIFICATION COUNTER
+   ================================================================ */
+
+.badge {
+  background: var(--accent-color) !important;
+}
+
