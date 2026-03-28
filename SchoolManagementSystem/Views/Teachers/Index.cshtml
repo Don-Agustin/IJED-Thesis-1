@@ -9,100 +9,80 @@
 
 @{
     ViewData["Title"] = "Teachers List";
-
-    // Define as configurações do JSON para evitar referência circular
-    var jsonSerializerSettings = new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Formatting = Formatting.Indented // Formatação mais legível para debug
-            };
-
-    // Serializa o modelo usando essas configurações
-    var serializedData = JsonConvert.SerializeObject(Model, jsonSerializerSettings);
+    var jsonSettings = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+    var serializedData = JsonConvert.SerializeObject(Model, jsonSettings);
 }
 
-<h2>Teachers</h2>
-
-<div>
-    <a asp-action="Create" class="btn btn-success mb-3">Create Teacher</a>
+<div class="page-heading">
+    <div class="page-heading-left">
+        <div class="heading-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+        <h2>Teachers</h2>
+        <span class="count-badge">@Model.Count()</span>
+    </div>
+    <a asp-action="Create" class="btn btn-primary btn-sm">
+        <i class="fas fa-plus me-1"></i>Add Teacher
+    </a>
 </div>
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info">No teachers found.</div>
+    <div class="empty-state">
+        <i class="fas fa-chalkboard-teacher"></i>
+        <p>No teachers found. Add the first one to get started.</p>
+    </div>
 }
 else
 {
-    <div id="Grid"></div>
+    <div class="card">
+        <div class="card-body p-0">
+            <div id="Grid" style="border-radius: 0 0 12px 12px; overflow: hidden;"></div>
+        </div>
+    </div>
 }
 
 @section Scripts {
     <script id="profilePictureTemplate" type="text/x-template">
-        <img src="${ImageFullPath}" alt="Profile Picture" style="width: 50px; height: 50px; border-radius: 50%;" />
+        <img src="${ImageFullPath}" alt="Profile" style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #fdf0f2;" />
     </script>
-
     <script id="actionTemplate" type="text/x-template">
-        <a href="/Teachers/Edit/${Id}" class="btn btn-warning">Edit</a> <!-- Aponta para TeachersController -->
-        <a href="/Teachers/Delete/${Id}" class="btn btn-danger">Delete</a> <!-- Aponta para TeachersController -->
-        <a href="/Teachers/Details/${Id}" class="btn btn-primary">Details</a> <!-- Aponta para TeachersController -->
+        <div style="display:flex;gap:4px;justify-content:center;">
+            <a href="/Teachers/Edit/${Id}"    class="btn btn-warning btn-sm" title="Edit"><i class="fas fa-edit"></i></a>
+            <a href="/Teachers/Delete/${Id}"  class="btn btn-danger  btn-sm" title="Delete"><i class="fas fa-trash"></i></a>
+            <a href="/Teachers/Details/${Id}" class="btn btn-primary btn-sm" title="Details"><i class="fas fa-eye"></i></a>
+        </div>
+    </script>
+    <script id="statusTemplate" type="text/x-template">
+        <span class="badge ${StatusText === 'Active' ? 'badge-pass' : StatusText === 'Pending' ? 'badge-pending' : 'badge-fail'}">${StatusText}</span>
     </script>
 
     <script>
         $(document).ready(function () {
-            var serializedData = @Html.Raw(serializedData); // Usa o serializedData JSON aqui
-
-            // Mapeia o Status para um texto legível
-            serializedData.forEach(function (teacher) {
-                switch (teacher.Status) {
-                    case 0: // Assuming Pending is 0
-                        teacher.StatusText = "Pending";
-                        break;
-                    case 1: // Assuming Active is 1
-                        teacher.StatusText = "Active";
-                        break;
-                    case 2: // Assuming Inactive is 2
-                        teacher.StatusText = "Inactive";
-                        break;
+            var data = @Html.Raw(serializedData);
+            data.forEach(function (t) {
+                switch (t.Status) {
+                    case 0: t.StatusText = "Pending"; break;
+                    case 1: t.StatusText = "Active";  break;
+                    case 2: t.StatusText = "Inactive"; break;
+                    default: t.StatusText = String(t.Status);
                 }
             });
 
-            var grid = new ej.grids.Grid({
-                dataSource: serializedData,
-                allowPaging: true,            // Habilita paginação
-                allowSorting: true,           // Habilita ordenação
-                allowFiltering: true,         // Habilita filtragem
-                allowGrouping: true,          // Habilita agrupamento
-                filterSettings: { type: 'Menu' }, // Habilita filtro de menu
+            new ej.grids.Grid({
+                dataSource: data,
+                allowPaging: true, allowSorting: true, allowFiltering: true,
+                filterSettings: { type: 'Menu' },
                 pageSettings: { pageSize: 10 },
-                toolbar: ['Search'],           // Adiciona barra de pesquisa
-                groupSettings: { showGroupedColumn: true }, // Mostra a coluna agrupada
+                toolbar: ['Search'],
                 columns: [
-                    {
-                        field: "ImageFullPath",
-                        headerText: "Profile Picture",
-                        width: 100,
-                        textAlign: "Center",
-                        template: "#profilePictureTemplate"
-                    },
-                    { field: "FirstName", headerText: "First Name", width: 120 },
-                    { field: "LastName", headerText: "Last Name", width: 120 },
-                    { field: "AcademicDegree", headerText: "Academic Degree", width: 150 }, // Novo campo para grau acadêmico
-                    {
-                        field: "FormattedHireDate", // Usando a nova propriedade formatada
-                        headerText: "Hire Date",
-                        width: 150
-                    },
-                    { field: "StatusText", headerText: "Status", width: 100 }, // Exibe o nome do Status ao invés de números
-                    {
-                        headerText: "Actions",
-                        width: 180,
-                        textAlign: "Center",
-                        template: "#actionTemplate"
-                    }
+                    { field: "ImageFullPath",    headerText: "Photo",      width: 80,  textAlign: "Center", template: "#profilePictureTemplate" },
+                    { field: "FirstName",         headerText: "First Name", width: 130 },
+                    { field: "LastName",          headerText: "Last Name",  width: 130 },
+                    { field: "AcademicDegree",    headerText: "Degree",     width: 130 },
+                    { field: "FormattedHireDate", headerText: "Hire Date",  width: 120 },
+                    { field: "StatusText",        headerText: "Status",     width: 110, template: "#statusTemplate" },
+                    { headerText: "Actions",      width: 160, textAlign: "Center", template: "#actionTemplate", allowSorting: false, allowFiltering: false }
                 ]
-            });
-
-            grid.appendTo("#Grid"); // Aplica o grid ao elemento DOM com id 'Grid'
+            }).appendTo("#Grid");
         });
     </script>
 }

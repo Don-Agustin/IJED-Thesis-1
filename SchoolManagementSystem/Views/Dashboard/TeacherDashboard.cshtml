@@ -1,7 +1,65 @@
 ﻿@{
     Layout = "_Dashboard";
     ViewBag.Title = "Teacher Dashboard";
+    ViewBag.PageTitle = "Dashboard";
 }
 
-<h1>Teacher Dashboard</h1>
-<p>Welcome, Teacher!</p>
+@model SchoolManagementSystem.Models.DashboardViewModel
+
+<!-- ═══════════════ STAT CARDS ═══════════════ -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon--blue">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">@Model.TotalStudents</span>
+                <span class="stat-label">Total Students</span>
+            </div>
+            <span class="stat-sub">@Model.ActiveStudents active</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon--maroon">
+                <i class="fas fa-school"></i>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">@Model.TotalClasses</span>
+                <span class="stat-label">Classes</span>
+            </div>
+            <span class="stat-sub">this semester</span>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon--teal">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">@Model.AttendanceRate<small>%</small></span>
+                <span class="stat-label">Attendance Rate</span>
+            </div>
+            <div class="stat-bar">
+                <div class="stat-bar-fill" style="width: @Model.AttendanceRate%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ QUICK ACTIONS ═══════════════ -->
+<div class="row g-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-bolt me-2"></i>Quick Actions</div>
+            <div class="card-body quick-links">
+                <a asp-controller="Grades" asp-action="Index" class="quick-link"><i class="fas fa-graduation-cap"></i>View Grades</a>
+                <a asp-controller="Attendance" asp-action="Index" class="quick-link"><i class="fas fa-calendar-check"></i>Attendance</a>
+                <a asp-controller="Courses" asp-action="Index" class="quick-link"><i class="fas fa-book"></i>Courses</a>
+                <a asp-controller="Subjects" asp-action="Index" class="quick-link"><i class="fas fa-book-open"></i>Subjects</a>
+                <a asp-controller="Account" asp-action="ChangeUser" class="quick-link"><i class="fas fa-user-cog"></i>My Profile</a>
+            </div>
+        </div>
+    </div>
+</div>

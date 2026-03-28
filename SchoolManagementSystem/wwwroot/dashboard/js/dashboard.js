@@ -1,95 +1,166 @@
-﻿// Função para alternar o modo escuro
-const toggleDarkMode = () => {
-    const elements = [
-        document.body,
-        document.querySelector('.sidebar'),
-        document.querySelector('.topbar'),
-        document.querySelector('.breadcrumb'),
-        document.querySelector('.logout-btn')
-    ];
+﻿/* =================================================================
+   dashboard.js  —  IJED Dashboard Interactions
+   ================================================================= */
 
-    const cards = document.querySelectorAll('.card');
+(function () {
+    'use strict';
 
-    // Alterna a classe 'dark-mode' para todos os elementos
-    elements.forEach(el => el && el.classList.toggle('dark-mode'));
-    cards.forEach(card => card.classList.toggle('dark-mode'));
-};
+    // ── Sidebar toggle (desktop collapse / mobile slide) ─────────────
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const contentWrapper = document.getElementById('contentWrapper');
+    const topbar = document.querySelector('.dash-topbar');
 
-// Função para animar os cards no dashboard
-const animateCards = () => {
-    document.querySelectorAll('.card').forEach(card => {
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', function () {
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+                sidebar.classList.toggle('mobile-open');
+                let backdrop = document.getElementById('sidebarBackdrop');
+                if (!backdrop) {
+                    backdrop = document.createElement('div');
+                    backdrop.id = 'sidebarBackdrop';
+                    backdrop.className = 'sidebar-backdrop';
+                    document.body.appendChild(backdrop);
+                    backdrop.addEventListener('click', closeMobileSidebar);
+                }
+                backdrop.classList.toggle('show', sidebar.classList.contains('mobile-open'));
+            } else {
+                sidebar.classList.toggle('collapsed');
+                // Sync topbar and content-wrapper left offset via CSS class
+                if (topbar) topbar.style.left = sidebar.classList.contains('collapsed') ? 'var(--sidebar-collapsed-w)' : 'var(--sidebar-width)';
+                if (contentWrapper) contentWrapper.style.marginLeft = sidebar.classList.contains('collapsed') ? 'var(--sidebar-collapsed-w)' : 'var(--sidebar-width)';
+            }
+        });
+    }
+
+    function closeMobileSidebar() {
+        if (sidebar) sidebar.classList.remove('mobile-open');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        if (backdrop) backdrop.classList.remove('show');
+    }
+
+    // ── Active sidebar link highlight ──────────────────────────────────
+    // Ensures the correct link is marked active based on current URL
+    const currentPath = window.location.pathname.toLowerCase();
+    document.querySelectorAll('.sidebar-link').forEach(function (link) {
+        const href = link.getAttribute('href');
+        if (!href) return;
+        const linkPath = href.toLowerCase().split('?')[0];
+        // Mark active if the URL starts with this link's path (handles /Students/Edit/5 → /Students)
+        if (linkPath !== '/' && currentPath.startsWith(linkPath)) {
+            // Remove any existing active
+            document.querySelectorAll('.sidebar-link.active').forEach(function (a) {
+                a.classList.remove('active');
+                a.style.paddingLeft = '';
+            });
+            link.classList.add('active');
+        }
+    });
+
+    // ── Card entrance animation ────────────────────────────────────────
+    document.querySelectorAll('.card').forEach(function (card) {
         card.classList.add('animate__animated', 'animate__fadeInUp');
     });
-};
 
-// Função para carregar e animar notificações
-const loadNotifications = () => {
-    const notificationIcon = document.querySelector('.notifications i');
-    notificationIcon.classList.add('animate__animated', 'animate__shakeX');
-    setTimeout(() => notificationIcon.classList.remove('animate__shakeX'), 1000);
-};
-
-// Função para mostrar notificações (placeholder)
-const showNotifications = () => {
-    const notifications = document.querySelector('.notifications');
-    notifications.innerHTML = `<i class="fas fa-bell"></i><span class="badge">3</span>`;
-    setTimeout(() => notifications.innerHTML = '', 3000); // Esconde notificações após 3 segundos
-};
-
-// Função para alternar a sidebar recolhida
-const toggleSidebar = () => {
-    const sidebar = document.querySelector('.sidebar');
-    sidebar.classList.toggle('collapsed');
-};
-
-// Função para adicionar animação no botão de logout
-const addLogoutAnimation = () => {
-    const logoutButton = document.querySelector('.logout-btn');
-    logoutButton.addEventListener('click', function () {
-        this.classList.add('animate__animated', 'animate__bounce');
-        setTimeout(() => this.classList.remove('animate__bounce'), 1000);
-    });
-};
-
-// Função para gerenciar o comportamento dos submenus
-const handleSubmenus = () => {
-    // Manipula o clique nos links que têm submenus
-    $('.sidebar-menu li > a[data-toggle="submenu"]').click(function (e) {
-        e.preventDefault(); // Previne o comportamento padrão do link
-
-        const submenu = $(this).next('.submenu'); // Seleciona o submenu correspondente
-        $('.submenu').not(submenu).slideUp(); // Fecha outros submenus abertos
-        submenu.slideToggle(300); // Abre ou fecha o submenu clicado
-    });
-
-    // Manipula o clique nos itens do submenu
-    $('.submenu li > a').click(function () {
-        // Não adicionamos lógica para fechar o submenu aqui
-        // O link irá redirecionar para a nova view sem fechar o submenu
-    });
-};
-
-// Inicialização das funções ao carregar a página
-window.onload = () => {
-    animateCards();
-    showNotifications();
-    loadNotifications();
-    addLogoutAnimation();
-
-    // Alternar modo escuro
-    const darkModeToggle = document.querySelector('#darkModeToggle');
-    if (darkModeToggle) {
-        darkModeToggle.addEventListener('click', toggleDarkMode);
+    // ── Alert/notification bell shake on load ──────────────────────────
+    var bellIcon = document.querySelector('.topbar-notif .fa-bell, .topbar-notif i');
+    if (bellIcon) {
+        bellIcon.classList.add('animate__animated', 'animate__shakeX');
+        setTimeout(function () {
+            bellIcon.classList.remove('animate__shakeX');
+        }, 1000);
     }
 
-    // Alternar sidebar
-    const sidebarToggle = document.querySelector('#toggleSidebar');
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', toggleSidebar);
-    }
-};
+    // ── Responsive: re-evaluate on window resize ───────────────────────
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 768) {
+            closeMobileSidebar();
+        }
+    });
 
-// Inicialização dos submenus e outras funções ao carregar o DOM
-$(document).ready(() => {
-    handleSubmenus();
-});
+})();
+/* =================================================================
+   dashboard.js  —  IJED Dashboard Interactions
+   ================================================================= */
+
+(function () {
+    'use strict';
+
+    // ── Sidebar toggle (desktop collapse / mobile slide) ─────────────
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const contentWrapper = document.getElementById('contentWrapper');
+    const topbar = document.querySelector('.dash-topbar');
+
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', function () {
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+                sidebar.classList.toggle('mobile-open');
+                let backdrop = document.getElementById('sidebarBackdrop');
+                if (!backdrop) {
+                    backdrop = document.createElement('div');
+                    backdrop.id = 'sidebarBackdrop';
+                    backdrop.className = 'sidebar-backdrop';
+                    document.body.appendChild(backdrop);
+                    backdrop.addEventListener('click', closeMobileSidebar);
+                }
+                backdrop.classList.toggle('show', sidebar.classList.contains('mobile-open'));
+            } else {
+                sidebar.classList.toggle('collapsed');
+                // Sync topbar and content-wrapper left offset via CSS class
+                if (topbar) topbar.style.left = sidebar.classList.contains('collapsed') ? 'var(--sidebar-collapsed-w)' : 'var(--sidebar-width)';
+                if (contentWrapper) contentWrapper.style.marginLeft = sidebar.classList.contains('collapsed') ? 'var(--sidebar-collapsed-w)' : 'var(--sidebar-width)';
+            }
+        });
+    }
+
+    function closeMobileSidebar() {
+        if (sidebar) sidebar.classList.remove('mobile-open');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        if (backdrop) backdrop.classList.remove('show');
+    }
+
+    // ── Active sidebar link highlight ──────────────────────────────────
+    // Ensures the correct link is marked active based on current URL
+    const currentPath = window.location.pathname.toLowerCase();
+    document.querySelectorAll('.sidebar-link').forEach(function (link) {
+        const href = link.getAttribute('href');
+        if (!href) return;
+        const linkPath = href.toLowerCase().split('?')[0];
+        // Mark active if the URL starts with this link's path (handles /Students/Edit/5 → /Students)
+        if (linkPath !== '/' && currentPath.startsWith(linkPath)) {
+            // Remove any existing active
+            document.querySelectorAll('.sidebar-link.active').forEach(function (a) {
+                a.classList.remove('active');
+                a.style.paddingLeft = '';
+            });
+            link.classList.add('active');
+        }
+    });
+
+    // ── Card entrance animation ────────────────────────────────────────
+    document.querySelectorAll('.card').forEach(function (card) {
+        card.classList.add('animate__animated', 'animate__fadeInUp');
+    });
+
+    // ── Alert/notification bell shake on load ──────────────────────────
+    var bellIcon = document.querySelector('.topbar-notif .fa-bell, .topbar-notif i');
+    if (bellIcon) {
+        bellIcon.classList.add('animate__animated', 'animate__shakeX');
+        setTimeout(function () {
+            bellIcon.classList.remove('animate__shakeX');
+        }, 1000);
+    }
+
+    // ── Responsive: re-evaluate on window resize ───────────────────────
+    window.addEventListener('resize', function () {
+        if (window.innerWidth > 768) {
+            closeMobileSidebar();
+        }
+    });
+
+})();

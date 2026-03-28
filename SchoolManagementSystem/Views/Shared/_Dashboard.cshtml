@@ -3,226 +3,338 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - School Management System</title>
-
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/SchoolManagementSystem.styles.css" asp-append-version="true" />
+    <title>@ViewBag.Title - Infant Jesus Learning Academy</title>
 
     <!-- Favicon -->
-    <link rel="icon" href="@Url.Content("~/images/favicon.ico")" type="image/x-icon">
+    <link rel="icon" href="@Url.Content("~/images/seal.png")" type="image/x-icon">
 
-    <!-- FontAwesome Icons -->
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <!-- Google Fonts (Poppins) -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- Template CSS Style link -->
-    <link rel="stylesheet" href="~/css/style-starter.css" asp-append-version="true">
-
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="@Url.Content("~/dashboard/css/dashboard.css")?v=@Guid.NewGuid()">
-
-    <!-- Dark Mode CSS -->
-    <link rel="stylesheet" href="@Url.Content("~/dashboard/css/dark-mode.css")?v=@Guid.NewGuid()">
-
-    <!-- Animate.css for Animations -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-
-    <!-- SweetAlert2 CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
     <!-- Syncfusion -->
     <link href="https://cdn.syncfusion.com/ej2/material.css" rel="stylesheet" />
 
-    <!-- IJED Theme Override — loads last to override all base styles without touching layout -->
-    <link rel="stylesheet" href="~/css/theme-ijed.css" asp-append-version="true">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <!-- Dashboard CSS (layout only) -->
+    <link rel="stylesheet" href="@Url.Content("~/dashboard/css/dashboard.css")?v=@Guid.NewGuid()">
+
+    <!-- IJED Theme (colors, branding — loads last) -->
+    <link rel="stylesheet" href="~/css/theme-ijed.css" asp-append-version="true">
 </head>
 <body>
 
-    <!-- Navbar -->
-    @Html.Partial("_Navbar")
+    <!-- ═══════════════════════════════════════════════════════════
+         SIDEBAR
+    ═══════════════════════════════════════════════════════════ -->
+    <aside class="sidebar" id="sidebar">
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-logo">
-            <img src="@Url.Content("~/images/seal.png")" alt="DevArt Academy Logo" loading="lazy">
+        <!-- Sidebar header: logo + school name -->
+        <div class="sidebar-brand">
+            <img src="@Url.Content("~/images/seal.png")" alt="IJED Seal" class="sidebar-brand-logo">
+            <div class="sidebar-brand-text">
+                <span class="sidebar-brand-name">IJED</span>
+                <span class="sidebar-brand-sub">Learning Academy</span>
+            </div>
         </div>
-        <ul class="sidebar-menu">
-            <!-- Home -->
-            <li><a href="/Home/Index" aria-label="Home"><i class="fas fa-home me-2"></i>Home</a></li>
-            
-            <!-- Account -->
-            @if (User.IsInRole("Admin"))
-            {
-                <li><a href="/Account/Register" aria-label="Register Account"><i class="fas fa-user-plus me-2"></i>Register</a></li>
-            }
 
+        <!-- Divider -->
+        <div class="sidebar-divider"></div>
 
-            <!-- Courses, Subjects and classes -->
-            @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
-            {
-                <li>
-                    <a href="/Courses/Index" aria-label="Courses" data-toggle="submenu"><i class="fas fa-book me-2"></i>Courses</a>
-                    <ul class="submenu">
-                        <li><a href="/Courses/Index" aria-label="View Courses">View Courses</a></li>
-                    </ul>
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <ul class="sidebar-menu">
+
+                <!-- Dashboard home -->
+                <li class="sidebar-item">
+                    @{
+                        string dashLink = User.IsInRole("Admin") ? Url.Action("AdminDashboard", "Dashboard") :
+                        User.IsInRole("Employee") ? Url.Action("EmployeeDashboard", "Dashboard") :
+                        User.IsInRole("Teacher") ? Url.Action("TeacherDashboard", "Dashboard") :
+                        User.IsInRole("Student") ? Url.Action("StudentDashboard", "Dashboard") :
+                        Url.Action("Index", "Home");
+                    }
+                    <a href="@dashLink" class="sidebar-link @(ViewBag.PageTitle == null ? "active" : "")">
+                        <span class="sidebar-icon"><i class="fas fa-home"></i></span>
+                        <span class="sidebar-label">Dashboard</span>
+                    </a>
                 </li>
-                <li>
-                    <a href="/Subjects/Index" aria-label="Subjects" data-toggle="submenu"><i class="fas fa-book-open me-2"></i>Subjects</a>
-                    <ul class="submenu">
-                        <li><a href="/Subjects/Index" aria-label="View Subjects">View Subjects</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="/SchoolClasses/Index" aria-label="School Classes" data-toggle="submenu"><i class="fas fa-school me-2"></i>School Classes</a>
-                    <ul class="submenu">
-                        <li><a href="/SchoolClasses/Index" aria-label="View Classes">View Classes</a></li>
-                    </ul>
-                </li>
-            }
 
-            <!-- Students Grades and Attendance-->
-            @if (User.IsInRole("Employee") || User.IsInRole("Admin"))
-            {
-                <li>
-                    <a href="/Students/Index" aria-label="Students" data-toggle="submenu"><i class="fas fa-user-graduate me-2"></i>Students</a>
-                    <ul class="submenu">
-                        <li><a href="/Students/Index" aria-label="View Students">View Students</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="/Grades/Index" aria-label="Grades" data-toggle="submenu"><i class="fas fa-graduation-cap me-2"></i>Grades</a>
-                    <ul class="submenu">
-                        <li><a href="/Grades/Index" aria-label="View Grades">View Grades</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="/Attendance/Index" aria-label="Attendance" data-toggle="submenu"><i class="fas fa-calendar-check me-2"></i> Attendance</a>
-                    <ul class="submenu">
-                        <li><a href="/Attendance/Index" aria-label="View Attendance">View Attendance</a></li>
-                    </ul>
-                </li>
-            }
-
-            <!-- Student grades and absences -->
-            @if (User.IsInRole("Student"))
-            {
-                <li>
-                    <a href="/Grades/MyGrades" aria-label="My Grades"><i class="fas fa-book-reader me-2"></i>My Grades</a>
-                </li>
-                <li>
-                    <a href="/Attendance/MyAttendances" aria-label="My Attendances"><i class="fas fa-book-reader me-2"></i>My Attendances</a>
-                </li>
-            }
-
-            @if (User.IsInRole("Admin"))
-            {
-                <li>
-                    <a href="/Employees/Index" aria-label="Employees" data-toggle="submenu"><i class="fas fa-user-tie me-2"></i>Employees</a>
-                    <ul class="submenu">
-                        <li><a href="/Employees/Index" aria-label="View Employees">View Employees</a></li>
-                    </ul>
-                </li>
-            }
-
-
-            <!-- Teachers -->
-            @if (User.IsInRole("Employee") || User.IsInRole("Admin"))
-            {
-                <li>
-                    <a href="/Teachers/Index" aria-label="Teachers" data-toggle="submenu"><i class="fas fa-chalkboard-teacher me-2"></i>Teachers</a>
-                    <ul class="submenu">
-                        <li><a href="/Teachers/Index" aria-label="View Teachers">View Teachers</a></li>
-                    </ul>
-                </li>
-            }
-
-
-            <!-- Alerts -->
-            @if (User.IsInRole("Employee"))
-            {
-                <li><a href="@Url.Action("Create", "Alert")"><i class="fas fa-exclamation-circle me-2"></i>Create Alert</a></li>
-                <li><a href="@Url.Action("ViewAlerts", "Alert")"><i class="fas fa-exclamation-triangle me-2"></i>View Alerts</a></li>
-            }
-
-            @if (User.IsInRole("Admin"))
-            {
-                <li><a href="@Url.Action("UnresolvedAlerts", "Alert")" aria-label="Manage Alerts"><i class="fas fa-exclamation-triangle me-2"></i>Manage Alerts</a></li>
-            }
-
-    </aside>
-
-    <!-- Content Wrapper -->
-    <div class="content-wrapper">
-
-@*         <!-- Topbar -->
-        <div class="topbar">
-            <div class="user-profile">
-                <img src="@Url.Content("~/images/profile.png")" alt="Profile Picture of @User.Identity.Name" loading="lazy">
-                <span>@User.Identity.Name</span>
-            </div>
-            <div class="notifications">
-                <i class="fas fa-bell"></i>
-                <span class="badge">3</span> 
-                <form action="/Account/Logout" method="post">
-                    <button class="logout-btn" type="submit">Logout</button>
-                </form>
-            </div>
-        </div> *@
-
-        <!-- Breadcrumb -->
-        <nav class="breadcrumb">
-            @{
-                string dashboardLink = "";
-                if (User.IsInRole("Admin"))
+                <!-- Admin-only: Register account -->
+                @if (User.IsInRole("Admin"))
                 {
-                    dashboardLink = Url.Action("AdminDashboard", "Dashboard");
+                    <li class="sidebar-item">
+                        <a href="@Url.Action("Register", "Account")" class="sidebar-link @(ViewBag.PageTitle == "Register" ? "active" : "")">
+                            <span class="sidebar-icon"><i class="fas fa-user-plus"></i></span>
+                            <span class="sidebar-label">Register Account</span>
+                        </a>
+                    </li>
                 }
-                else if (User.IsInRole("Employee"))
-                {
-                    dashboardLink = Url.Action("EmployeeDashboard", "Dashboard");
-                }
-                else if (User.IsInRole("Teacher"))
-                {
-                    dashboardLink = Url.Action("TeacherDashboard", "Dashboard");
-                }
-                else if (User.IsInRole("Student"))
-                {
-                    dashboardLink = Url.Action("StudentDashboard", "Dashboard");
-                }
-                else
-                {
-                    dashboardLink = Url.Action("Index", "Home");
-                }
-            }
-            <a href="@dashboardLink">Dashboard</a>
 
-            @if (ViewBag.PageTitle != null)
-            {
-                <span> / @ViewBag.PageTitle</span>
-            }
-            @if (ViewBag.SubPageTitle != null)
-            {
-                <span> / @ViewBag.SubPageTitle</span>
-            }
+                <!-- Courses, Subjects, Classes (Admin + Employee) -->
+                @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
+                {
+                    <li class="sidebar-section-label">Academic</li>
+
+                    <li class="sidebar-item">
+                        <a href="@Url.Action("Index", "Courses")" class="sidebar-link @(ViewBag.PageTitle == "Courses" ? "active" : "")">
+                            <span class="sidebar-icon"><i class="fas fa-book"></i></span>
+                            <span class="sidebar-label">Courses</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a href="@Url.Action("Index", "Subjects")" class="sidebar-link @(ViewBag.PageTitle == "Subjects" ? "active" : "")">
+                            <span class="sidebar-icon"><i class="fas fa-book-open"></i></span>
+                            <span class="sidebar-label">Subjects</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a href="@Url.Action("Index", "SchoolClasses")" class="sidebar-link @(ViewBag.PageTitle == "SchoolClasses" ? "active" : "")">
+                            <span class="sidebar-icon"><i class="fas fa-school"></i></span>
+                            <span class="sidebar-label">School Classes</span>
+                        </a>
+                    </li>
+                }
+
+                <!-- Students, Grades, Attendance (Admin + Employee) -->
+                @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
+                {
+                    <li class="sidebar-section-label">Students</li>
+
+                    <li class="sidebar-item">
+                        <a href="@Url.Action("Index", "Students")" class="sidebar-link @(ViewBag.PageTitle == "Students" ? "active" : "")">
+                            <span class="sidebar-icon"><i class="fas fa-user-graduate"></i></span>
+                            <span class="sidebar-label">Students</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a href="@Url.Action("Index", "Grades")" class="sidebar-link @(ViewBag.PageTitle == "Grade" ? "active" : "")">
+                            <span class="sidebar-icon"><i class="fas fa-graduation-cap"></i></span>
+                            <span class="sidebar-label">Grades</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a href="@Url.Action("Index", "Attendance")" class="sidebar-link @(ViewBag.PageTitle == "Attendance" ? "active" : "")">
+                            <span class="sidebar-icon"><i class="fas fa-calendar-check"></i></span>
+                            <span class="sidebar-label">Attendance</span>
+                        </a>
+                    </li>
+                }
+
+                <!-- Student self-service -->
+                @if (User.IsInRole("Student"))
+                {
+                    <li class="sidebar-section-label">My Records</li>
+
+                    <li class="sidebar-item">
+                        <a href="@Url.Action("MyGrades", "Grades")" class="sidebar-link @(ViewBag.PageTitle == "My Grades" ? "active" : "")">
+                            <span class="sidebar-icon"><i class="fas fa-book-reader"></i></span>
+                            <span class="sidebar-label">My Grades</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a href="@Url.Action("MyAttendances", "Attendance")" class="sidebar-link @(ViewBag.PageTitle == "My Attendance" ? "active" : "")">
+                            <span class="sidebar-icon"><i class="fas fa-clipboard-list"></i></span>
+                            <span class="sidebar-label">My Attendance</span>
+                        </a>
+                    </li>
+                }
+
+                <!-- Staff management (Admin + Employee) -->
+                @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
+                {
+                    <li class="sidebar-section-label">Staff</li>
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li class="sidebar-item">
+                            <a href="@Url.Action("Index", "Employees")" class="sidebar-link @(ViewBag.PageTitle == "Employees" ? "active" : "")">
+                                <span class="sidebar-icon"><i class="fas fa-user-tie"></i></span>
+                                <span class="sidebar-label">Employees</span>
+                            </a>
+                        </li>
+                    }
+
+                    <li class="sidebar-item">
+                        <a href="@Url.Action("Index", "Teachers")" class="sidebar-link @(ViewBag.PageTitle == "Teachers" ? "active" : "")">
+                            <span class="sidebar-icon"><i class="fas fa-chalkboard-teacher"></i></span>
+                            <span class="sidebar-label">Teachers</span>
+                        </a>
+                    </li>
+                }
+
+                <!-- Alerts -->
+                @if (User.IsInRole("Employee") || User.IsInRole("Admin"))
+                {
+                    <li class="sidebar-section-label">Alerts</li>
+
+                    @if (User.IsInRole("Employee"))
+                    {
+                        <li class="sidebar-item">
+                            <a href="@Url.Action("Create", "Alert")" class="sidebar-link">
+                                <span class="sidebar-icon"><i class="fas fa-plus-circle"></i></span>
+                                <span class="sidebar-label">Create Alert</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="@Url.Action("ViewAlerts", "Alert")" class="sidebar-link">
+                                <span class="sidebar-icon"><i class="fas fa-exclamation-triangle"></i></span>
+                                <span class="sidebar-label">View Alerts</span>
+                            </a>
+                        </li>
+                    }
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li class="sidebar-item">
+                            <a href="@Url.Action("UnresolvedAlerts", "Alert")" class="sidebar-link">
+                                <span class="sidebar-icon"><i class="fas fa-bell"></i></span>
+                                <span class="sidebar-label">Manage Alerts</span>
+                            </a>
+                        </li>
+                    }
+                }
+
+            </ul>
         </nav>
 
-        <!-- Main Content -->
-        <main>
+        <!-- Sidebar footer: user info + logout -->
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar">
+                    @{
+                        var initials = "";
+                        if (User.Identity.IsAuthenticated && User.Identity.Name != null)
+                        {
+                            var parts = User.Identity.Name.Split('@')[0].Split('.');
+                            initials = parts.Length >= 2
+                            ? (parts[0][0].ToString() + parts[1][0].ToString()).ToUpper()
+                            : User.Identity.Name.Substring(0, Math.Min(2, User.Identity.Name.Length)).ToUpper();
+                        }
+                    }
+                    <span>@initials</span>
+                </div>
+                <div class="sidebar-user-info">
+                    <span class="sidebar-user-name">@User.Identity.Name</span>
+                    <span class="sidebar-user-role">
+                        @(User.IsInRole("Admin") ? "Administrator" :
+                                                User.IsInRole("Employee") ? "Employee" :
+                                                User.IsInRole("Teacher") ? "Teacher" :
+                                                User.IsInRole("Student") ? "Student" : "User")
+                    </span>
+                </div>
+            </div>
+            <a href="@Url.Action("Logout", "Account")" class="sidebar-logout" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TOPBAR
+    ═══════════════════════════════════════════════════════════ -->
+    <div class="dash-topbar">
+        <!-- Left: hamburger + page title -->
+        <div class="topbar-left">
+            <button class="topbar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="topbar-title-group">
+                <h1 class="topbar-title">@(ViewBag.PageTitle ?? "Dashboard")</h1>
+                <!-- Breadcrumb -->
+                <nav class="topbar-breadcrumb" aria-label="breadcrumb">
+                    <a href="@dashLink">Dashboard</a>
+                    @if (ViewBag.PageTitle != null)
+                    {
+                        <span class="breadcrumb-sep">/</span>
+                        <span>@ViewBag.PageTitle</span>
+                    }
+                    @if (ViewBag.SubPageTitle != null)
+                    {
+                        <span class="breadcrumb-sep">/</span>
+                        <span>@ViewBag.SubPageTitle</span>
+                    }
+                </nav>
+            </div>
+        </div>
+
+        <!-- Right: notifications + user avatar -->
+        <div class="topbar-right">
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="topbar-notif" id="topbarNotif">
+                    @await Component.InvokeAsync("Notifications")
+                </div>
+            }
+
+            <!-- User avatar dropdown -->
+            <div class="dropdown topbar-user-dropdown">
+                <button class="topbar-avatar-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="topbar-avatar">@initials</div>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end topbar-dropdown-menu">
+                    <li class="dropdown-header">
+                        <strong>@User.Identity.Name</strong>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="@Url.Action("ChangeUser", "Account")">
+                            <i class="fas fa-user me-2"></i>Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="@Url.Action("ChangePassword", "Account")">
+                            <i class="fas fa-lock me-2"></i>Change Password
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-danger" href="@Url.Action("Logout", "Account")">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         MAIN CONTENT WRAPPER
+    ═══════════════════════════════════════════════════════════ -->
+    <div class="content-wrapper" id="contentWrapper">
+        <main class="main-content">
             @RenderBody()
         </main>
     </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCRIPTS
+    ═══════════════════════════════════════════════════════════ -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.syncfusion.com/ej2/dist/ej2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
     <script src="@Url.Content("~/dashboard/js/dashboard.js")?v=@Guid.NewGuid()"></script>
-    @RenderSection("Scripts", required: false)
 
+    @RenderSection("Scripts", required: false)
 
 </body>
 </html>

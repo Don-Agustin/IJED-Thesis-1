@@ -21,37 +21,80 @@ namespace SchoolManagementSystem.Controllers
         private readonly IMailHelper _mailHelper;
         private readonly IConfiguration _configuration;
 
-        public IActionResult LoginSelection()   
+        public AccountController(
+            IUserHelper userHelper,
+            IMailHelper mailHelper,
+            IConfiguration configuration)
+        {
+            _userHelper = userHelper;
+            _mailHelper = mailHelper;
+            _configuration = configuration;
+        }
+
+        // ── LOGIN FLOW ──────────────────────────────────────────────────────────
+
+        // BUG FIX: The old codebase had TWO Login() GET methods — the second one
+        // (bare "Login" with no [HttpGet] attribute) shadowed the new selection
+        // flow and caused the navbar "Login" link to land directly on the email
+        // form instead of the choice screen. We now have ONE clean entry point:
+        // GET /Account/Login → LoginSelection, plus named helpers EmailLogin /
+        // AdminLogin that feed into the shared POST handler.
+
+        /// <summary>
+        /// GET /Account/Login  — redirects to the selection screen.
+        /// This is what the navbar "Login" link hits.
+        /// </summary>
+        [HttpGet]
+        public IActionResult Login()
         {
             if (User.Identity.IsAuthenticated)
-            {
                 return RedirectToAction("Index", "Home");
-            }
+
+            // Always go to the choice screen first
+            return RedirectToAction("LoginSelection");
+        }
+
+        /// <summary>
+        /// GET /Account/LoginSelection  — shows the Email / Admin choice card.
+        /// </summary>
+        [HttpGet]
+        public IActionResult LoginSelection()
+        {
+            if (User.Identity.IsAuthenticated)
+                return RedirectToAction("Index", "Home");
+
             return View();
         }
 
+        /// <summary>
+        /// GET /Account/EmailLogin  — shows the login form pre-set for email users.
+        /// </summary>
         [HttpGet]
         public IActionResult EmailLogin()
         {
             if (User.Identity.IsAuthenticated)
-            {
                 return RedirectToAction("Index", "Home");
-            }
+
             ViewData["LoginType"] = "email";
-            return View("Login");   // reuses Views/Account/Login.cshtml
+            return View("Login");
         }
 
+        /// <summary>
+        /// GET /Account/AdminLogin  — shows the login form pre-set for admins.
+        /// </summary>
         [HttpGet]
         public IActionResult AdminLogin()
         {
             if (User.Identity.IsAuthenticated)
-            {
                 return RedirectToAction("Index", "Home");
-            }
+
             ViewData["LoginType"] = "admin";
-            return View("Login");   // reuses Views/Account/Login.cshtml
+            return View("Login");
         }
 
+        /// <summary>
+        /// POST /Account/Login  — processes credentials from either form variant.
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model, string loginType = "email")
         {
@@ -64,93 +107,33 @@ namespace SchoolManagementSystem.Controllers
                     var user = await _userHelper.GetUserByEmailAsync(model.Username);
                     var userRole = await _userHelper.GetRoleAsync(user);
 
-                    switch (userRole)
+                    return userRole switch
                     {
-                        case "Admin":
-                            return RedirectToAction("AdminDashboard", "Dashboard");
-                        case "Employee":
-                            return RedirectToAction("EmployeeDashboard", "Dashboard");
-                        case "Teacher":
-                            return RedirectToAction("TeacherDashboard", "Dashboard");
-                        case "Student":
-                            return RedirectToAction("StudentDashboard", "Dashboard");
-                        default:
-                            return RedirectToAction("Index", "Home");
-                    }
+                        "Admin" => RedirectToAction("AdminDashboard", "Dashboard"),
+                        "Employee" => RedirectToAction("EmployeeDashboard", "Dashboard"),
+                        "Teacher" => RedirectToAction("TeacherDashboard", "Dashboard"),
+                        "Student" => RedirectToAction("StudentDashboard", "Dashboard"),
+                        _ => RedirectToAction("Index", "Home"),
+                    };
                 }
 
                 ModelState.AddModelError(string.Empty, "Invalid email or password.");
             }
 
-            // Re-display the form with the correct title/type on validation failure
             ViewData["LoginType"] = loginType;
             return View("Login", model);
         }
 
+        // ── LOGOUT ──────────────────────────────────────────────────────────────
 
-        public AccountController(
-            IUserHelper userHelper,
-            IMailHelper mailHelper,
-            IConfiguration configuration)
-        {
-            _userHelper = userHelper;
-            _mailHelper = mailHelper;
-            _configuration = configuration;
-        }
-
-        // Displays the login page
-        public IActionResult Login()
-        {
-            if (User.Identity.IsAuthenticated)
-            {
-                return RedirectToAction("Index", "Home");
-            }
-            return View();
-        }
-
-        // Processes the login
-        [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var result = await _userHelper.LoginAsync(model);
-
-                if (result.Succeeded)
-                {
-                    // Check the user's role to determine the redirection
-                    var user = await _userHelper.GetUserByEmailAsync(model.Username);
-                    var userRole = await _userHelper.GetRoleAsync(user);
-
-                    switch (userRole)
-                    {
-                        case "Admin":
-                            return RedirectToAction("AdminDashboard", "Dashboard");
-                        case "Employee":
-                            return RedirectToAction("EmployeeDashboard", "Dashboard");
-                        case "Teacher":
-                            return RedirectToAction("TeacherDashboard", "Dashboard");
-                        case "Student":
-                            return RedirectToAction("StudentDashboard", "Dashboard");
-                        default:
-                            return RedirectToAction("Index", "Home");
-                    }
-                }
-            }
-
-            ModelState.AddModelError(string.Empty, "Failed to log in.");
-            return View(model);
-        }
-
-
-        // Logs out the user
         public async Task<IActionResult> Logout()
         {
             await _userHelper.LogoutAsync();
             return RedirectToAction("Index", "Home");
         }
 
-        // Displays the registration page
+        // ── REGISTRATION ────────────────────────────────────────────────────────
+
         [HttpGet]
         public IActionResult Register()
         {
@@ -158,15 +141,11 @@ namespace SchoolManagementSystem.Controllers
             {
                 TemporaryPassword = GenerateRandomPassword()
             };
-
-            // Fill in temporary password automatically
             model.Password = model.TemporaryPassword;
             model.Confirm = model.TemporaryPassword;
-
             return View(model);
         }
 
-        // Processes the registration
         [HttpPost]
         public async Task<IActionResult> Register(RegisterNewUserViewModel model)
         {
@@ -190,7 +169,6 @@ namespace SchoolManagementSystem.Controllers
                     string temporaryPassword = GenerateRandomPassword();
                     model.TemporaryPassword = temporaryPassword;
 
-                    // Create user with temporary password
                     var result = await _userHelper.AddUserAsync(user, temporaryPassword);
                     if (result != IdentityResult.Success)
                     {
@@ -198,29 +176,29 @@ namespace SchoolManagementSystem.Controllers
                         return View(model);
                     }
 
-                    // Assign the role "Pending"
                     await _userHelper.AddUserToRoleAsync(user, "Pending");
 
-                    // Generates the email activation token
                     string myToken = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
-                    string tokenLink = Url.Action("ConfirmEmail", "Account", new { userid = user.Id, token = myToken }, protocol: HttpContext.Request.Scheme);
+                    string tokenLink = Url.Action("ConfirmEmail", "Account",
+                        new { userid = user.Id, token = myToken },
+                        protocol: HttpContext.Request.Scheme);
 
-                    // Send email with temporary password and activation link
-                    string emailBody = $"<h1>Account Created</h1><p>Your temporary password is: {temporaryPassword}</p><p>Click here to activate your account and change your password: <a href=\"{tokenLink}\">Activate Account</a></p>";
+                    string emailBody =
+                        $"<h1>Account Created</h1>" +
+                        $"<p>Your temporary password is: {temporaryPassword}</p>" +
+                        $"<p>Click here to activate your account: <a href=\"{tokenLink}\">Activate Account</a></p>";
 
                     Helpers.Response response = _mailHelper.SendEmail(model.Username, "Account Created", emailBody);
 
                     if (response.IsSuccess)
                     {
                         ViewBag.Message = "User created successfully. An email was sent with further instructions.";
-
-                        ViewBag.Links = new Dictionary<string, string>
+                        ViewBag.Links = new System.Collections.Generic.Dictionary<string, string>
                         {
-                            { "Create Student", Url.Action("Create", "Students") },
+                            { "Create Student",  Url.Action("Create", "Students")  },
                             { "Create Employee", Url.Action("Create", "Employees") },
-                            { "Create Teacher", Url.Action("Create", "Teachers") }
+                            { "Create Teacher",  Url.Action("Create", "Teachers")  }
                         };
-
                         return View(model);
                     }
 
@@ -231,15 +209,12 @@ namespace SchoolManagementSystem.Controllers
             return View(model);
         }
 
-        // Displays the change user details page
+        // ── PROFILE / CHANGE USER ────────────────────────────────────────────────
+
         public async Task<IActionResult> ChangeUser()
         {
             var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
-
-            if (user == null)
-            {
-                return RedirectToAction("NotAuthorized");
-            }
+            if (user == null) return RedirectToAction("NotAuthorized");
 
             var model = new ChangeUserViewModel
             {
@@ -248,37 +223,28 @@ namespace SchoolManagementSystem.Controllers
                 Address = user.Address,
                 PhoneNumber = user.PhoneNumber
             };
-
             return View(model);
         }
 
-        // Processes the change user details request
         [HttpPost]
         public async Task<IActionResult> ChangeUser(ChangeUserViewModel model)
         {
             if (ModelState.IsValid)
             {
                 var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
-
                 if (user != null)
                 {
-                    // Update the User entity
                     user.FirstName = model.FirstName;
                     user.LastName = model.LastName;
                     user.Address = model.Address;
                     user.PhoneNumber = model.PhoneNumber;
 
-                    // Save changes to the user
                     var result = await _userHelper.UpdateUserAsync(user);
-
                     if (result.Succeeded)
                     {
-                        // Call the method to update associated entities (Employee, Student, Teacher)
                         await _userHelper.UpdateUserDataByRoleAsync(user);
-
                         return RedirectToAction("Index", "Home");
                     }
-
                     ModelState.AddModelError(string.Empty, "Failed to update user details.");
                 }
                 else
@@ -286,41 +252,26 @@ namespace SchoolManagementSystem.Controllers
                     return RedirectToAction("NotAuthorized");
                 }
             }
-
             return View(model);
         }
 
-        // Displays the not authorized page
-        public IActionResult NotAuthorized()
-        {
-            return View();
-        }
+        // ── EMAIL CONFIRMATION ───────────────────────────────────────────────────
 
-        // Email confirmation
         public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
-            {
                 return NotFound();
-            }
 
             var user = await _userHelper.GetUserByIdAsync(userId);
-            if (user == null)
-            {
-                return NotFound();
-            }
+            if (user == null) return NotFound();
 
             var result = await _userHelper.ConfirmEmailAsync(user, token);
-            if (!result.Succeeded)
-            {
-                return View("Error");
-            }
+            if (!result.Succeeded) return View("Error");
 
-            // Redirects to the page to change the first password
-            return RedirectToAction("ChangeFirstPassword", new { email = user.Email, temporaryPassword = GenerateRandomPassword() });
+            return RedirectToAction("ChangeFirstPassword",
+                new { email = user.Email, temporaryPassword = GenerateRandomPassword() });
         }
 
-        // Displays the Change First Password page
         public IActionResult ChangeFirstPassword(string email, string temporaryPassword)
         {
             var model = new ChangeFirstPasswordViewModel
@@ -328,11 +279,9 @@ namespace SchoolManagementSystem.Controllers
                 Email = email,
                 TemporaryPassword = temporaryPassword
             };
-
             return View(model);
         }
 
-        // Processes the Change First Password request
         [HttpPost]
         public async Task<IActionResult> ChangeFirstPassword(ChangeFirstPasswordViewModel model)
         {
@@ -341,67 +290,45 @@ namespace SchoolManagementSystem.Controllers
                 var user = await _userHelper.GetUserByEmailAsync(model.Email);
                 if (user != null)
                 {
-                    // Check if the temporary password is correct
                     var signInResult = await _userHelper.ValidatePasswordAsync(user, model.TemporaryPassword);
-                    if (!signInResult.Succeeded) 
+                    if (!signInResult.Succeeded)
                     {
                         ModelState.AddModelError(string.Empty, "The temporary password is incorrect.");
                         return View(model);
                     }
 
-                    //Resets the user's password
                     var result = await _userHelper.ResetPasswordWithoutTokenAsync(user, model.NewPassword);
                     if (result.Succeeded)
                     {
                         ViewBag.Message = "Your password has been changed successfully. You can now log in.";
-                        return RedirectToAction("Login");
+                        return RedirectToAction("LoginSelection");
                     }
 
                     foreach (var error in result.Errors)
-                    {
                         ModelState.AddModelError(string.Empty, error.Description);
-                    }
                 }
                 else
                 {
                     ModelState.AddModelError(string.Empty, "User not found.");
                 }
             }
-
             return View(model);
         }
 
+        // ── PASSWORD CHANGE / RECOVERY ───────────────────────────────────────────
 
+        public IActionResult ChangePassword() => View();
 
-
-        private string GenerateRandomPassword(int length = 8)
-        {
-            const string validChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()?_-";
-            Random random = new Random();
-            return new string(Enumerable.Repeat(validChars, length)
-                .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
-
-        // Displays the change password page
-        public IActionResult ChangePassword()
-        {
-            return View();
-        }
-
-        // Processes the change password request
         [HttpPost]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var user = await _userHelper.GetUserByEmailAsync(this.User.Identity.Name);
+                var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
                 if (user != null)
                 {
                     var result = await _userHelper.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
-                    if (result.Succeeded)
-                    {
-                        return RedirectToAction("ChangeUser");
-                    }
+                    if (result.Succeeded) return RedirectToAction("ChangeUser");
                     ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault().Description);
                 }
                 else
@@ -409,17 +336,11 @@ namespace SchoolManagementSystem.Controllers
                     ModelState.AddModelError(string.Empty, "User not found.");
                 }
             }
-
             return View(model);
         }
 
-        // Displays the password recovery page
-        public IActionResult RecoverPassword()
-        {
-            return View();
-        }
+        public IActionResult RecoverPassword() => View();
 
-        // Processes the password recovery request
         [HttpPost]
         public async Task<IActionResult> RecoverPassword(RecoverPasswordViewModel model)
         {
@@ -433,28 +354,22 @@ namespace SchoolManagementSystem.Controllers
                 }
 
                 var myToken = await _userHelper.GeneratePasswordResetTokenAsync(user);
-                var link = Url.Action("ResetPassword", "Account", new { token = myToken }, protocol: HttpContext.Request.Scheme);
+                var link = Url.Action("ResetPassword", "Account",
+                    new { token = myToken }, protocol: HttpContext.Request.Scheme);
 
-                Helpers.Response response = _mailHelper.SendEmail(model.Email, "Password Reset", $"<h1>Password Reset</h1>Click here to reset your password: <a href=\"{link}\">Reset Password</a>");
+                Helpers.Response response = _mailHelper.SendEmail(model.Email, "Password Reset",
+                    $"<h1>Password Reset</h1>Click here to reset your password: <a href=\"{link}\">Reset Password</a>");
 
                 if (response.IsSuccess)
-                {
                     ViewBag.Message = "Instructions to recover your password have been sent to your email.";
-                }
 
                 return View();
             }
-
             return View(model);
         }
 
-        // Displays the password reset page
-        public IActionResult ResetPassword(string token)
-        {
-            return View();
-        }
+        public IActionResult ResetPassword(string token) => View();
 
-        // Processes the password reset request
         [HttpPost]
         public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
         {
@@ -462,24 +377,25 @@ namespace SchoolManagementSystem.Controllers
             if (user != null)
             {
                 var result = await _userHelper.ResetPasswordAsync(user, model.Token, model.Password);
-                if (result.Succeeded)
-                {
-                    ViewBag.Message = "Password reset successfully.";
-                    return View();
-                }
-
+                if (result.Succeeded) { ViewBag.Message = "Password reset successfully."; return View(); }
                 ViewBag.Message = "Error resetting the password.";
                 return View(model);
             }
-
             ViewBag.Message = "User not found.";
             return View(model);
         }
 
-        public IActionResult AccessDenied()
-        {
-            return View();
-        }
+        // ── MISC ─────────────────────────────────────────────────────────────────
 
+        public IActionResult NotAuthorized() => View();
+        public IActionResult AccessDenied() => View();
+
+        private string GenerateRandomPassword(int length = 8)
+        {
+            const string validChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()?_-";
+            var random = new Random();
+            return new string(Enumerable.Repeat(validChars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
     }
 }

@@ -1,20 +1,20 @@
-﻿@{
+@{
     Layout = "_Dashboard";
-    ViewBag.PageTitle = "Students";
+    ViewBag.PageTitle = "Teachers";
     ViewBag.SubPageTitle = "Create";
 }
 
-@model SchoolManagementSystem.Models.StudentViewModel
+@model SchoolManagementSystem.Models.TeacherViewModel
 
 @{
-    ViewData["Title"] = "Create Student";
+    ViewData["Title"] = "Create Teacher";
 }
 
 <!-- Page heading -->
 <div class="page-heading mb-4">
     <div class="page-heading-left">
-        <div class="heading-icon"><i class="fas fa-user-graduate"></i></div>
-        <h2>Create Student</h2>
+        <div class="heading-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+        <h2>Create Teacher</h2>
     </div>
     <a asp-action="Index" class="btn btn-sm btn-secondary">
         <i class="fas fa-arrow-left me-1"></i>Back to List
@@ -25,7 +25,7 @@
     <div class="col-xl-8 col-lg-10">
         <div class="card">
             <div class="card-header">
-                <i class="fas fa-user-plus me-2"></i>Student Information
+                <i class="fas fa-chalkboard-teacher me-2"></i>Teacher Information
             </div>
 
             <div class="card-body">
@@ -42,7 +42,7 @@
                     </div>
                 }
 
-                <form id="createStudentForm" asp-action="Create" method="post" enctype="multipart/form-data">
+                <form id="createTeacherForm" asp-action="Create" method="post" enctype="multipart/form-data">
 
                     <!-- Avatar upload -->
                     <div class="avatar-upload-section mb-4">
@@ -58,21 +58,22 @@
                     </div>
 
                     <!-- Section: Account -->
-                    <div class="form-section-label">Account & Class</div>
+                    <div class="form-section-label">Account & Qualifications</div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label asp-for="UserId" class="form-label">Pending User <span class="text-danger">*</span></label>
                             <select asp-for="UserId" class="form-select" asp-items="ViewBag.PendingUsers" id="pendingUserDropdown" required>
-                                <option value="">Select Student</option>
+                                <option value="">Select User</option>
                             </select>
                             <span asp-validation-for="UserId" class="text-danger"></span>
                         </div>
                         <div class="col-md-6">
-                            <label asp-for="SchoolClassId" class="form-label">School Class <span class="text-danger">*</span></label>
-                            <select asp-for="SchoolClassId" class="form-select" asp-items="ViewBag.SchoolClassId" required>
-                                <option value="">Select Class</option>
+                            <label asp-for="AcademicDegree" class="form-label">Academic Degree</label>
+                            <select asp-for="AcademicDegree" class="form-select"
+                                    asp-items="Html.GetEnumSelectList<SchoolManagementSystem.Data.Entities.AcademicDegree>()">
+                                <option value="">Select Degree</option>
                             </select>
-                            <span asp-validation-for="SchoolClassId" class="text-danger"></span>
+                            <span asp-validation-for="AcademicDegree" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -91,20 +92,20 @@
                         </div>
                     </div>
 
-                    <!-- Section: Academic -->
-                    <div class="form-section-label">Academic Details</div>
-                    <div class="row g-3 mb-4">
+                    <!-- Section: Employment -->
+                    <div class="form-section-label">Employment Details</div>
+                    <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label asp-for="EnrollmentDate" class="form-label">Enrollment Date <span class="text-danger">*</span></label>
-                            <input asp-for="EnrollmentDate" type="date" class="form-control" required />
-                            <span asp-validation-for="EnrollmentDate" class="text-danger"></span>
+                            <label asp-for="HireDate" class="form-label">Hire Date <span class="text-danger">*</span></label>
+                            <input asp-for="HireDate" type="date" class="form-control" required />
+                            <span asp-validation-for="HireDate" class="text-danger"></span>
                         </div>
                         <div class="col-md-6">
                             <label asp-for="Status" class="form-label">Status <span class="text-danger">*</span></label>
                             <select asp-for="Status" class="form-select" required>
                                 <option value="">Select Status</option>
-                                @foreach (var status in Enum.GetValues(typeof(SchoolManagementSystem.Data.Entities.StudentStatus))
-                                                                .Cast<SchoolManagementSystem.Data.Entities.StudentStatus>())
+                                @foreach (var status in Enum.GetValues(typeof(SchoolManagementSystem.Data.Entities.TeacherStatus))
+                                    .Cast<SchoolManagementSystem.Data.Entities.TeacherStatus>())
                                 {
                                     <option value="@status">@status</option>
                                 }
@@ -113,11 +114,42 @@
                         </div>
                     </div>
 
-                    <!-- Card footer actions -->
+                    <!-- Section: Assignments -->
+                    <div class="form-section-label">Classes & Subjects</div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">School Classes</label>
+                            <div class="checkbox-group">
+                                @foreach (var schoolClass in ViewBag.SchoolClasses)
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="SchoolClassIds"
+                                               value="@schoolClass.Value" id="sc_@schoolClass.Value" />
+                                        <label class="form-check-label" for="sc_@schoolClass.Value">@schoolClass.Text</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Subjects</label>
+                            <div class="checkbox-group">
+                                @foreach (var subject in ViewBag.Subjects)
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="SubjectIds"
+                                               value="@subject.Value" id="subj_@subject.Value" />
+                                        <label class="form-check-label" for="subj_@subject.Value">@subject.Text</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
                     <div class="form-actions">
                         <a asp-action="Index" class="btn btn-secondary">Cancel</a>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-1"></i>Create Student
+                            <i class="fas fa-save me-1"></i>Create Teacher
                         </button>
                     </div>
 
@@ -144,7 +176,6 @@
             }
         });
 
-        // Avatar preview via FileReader
         document.getElementById("imageUpload").addEventListener("change", function () {
             const file = this.files[0];
             if (!file) return;
@@ -153,13 +184,6 @@
             reader.readAsDataURL(file);
         });
 
-        @if (TempData["ErrorMessage"] != null)
-        {
-                <text>
-                Swal.fire({ title: 'Error', text: '@TempData["ErrorMessage"]', icon: 'error' });
-                </text>
-        }
-
-        setupSweetAlertOnSubmit("createStudentForm", "Create this student?");
+        setupSweetAlertOnSubmit("createTeacherForm", "Create this teacher?");
     </script>
 }

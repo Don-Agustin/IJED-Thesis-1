@@ -6,49 +6,89 @@
 
 @model IEnumerable<SchoolManagementSystem.Models.StudentGradeAverageViewModel>
 
-<h2>Grades List</h2>
-
-<form asp-action="Index" method="get" class="form-inline mb-3">
-    <div class="form-group">
-        <label for="SchoolClassId" class="mr-2">Select Class:</label>
-        <select id="SchoolClassId" name="classId" class="form-control mr-2">
-            <option value="">-- Select Class --</option>
-            @foreach (var schoolClass in ViewBag.Classes)
-            {
-                <option value="@schoolClass.Value">@schoolClass.Text</option>
-            }
-        </select>
-        <input type="submit" value="Filter" class="btn btn-primary" />
+<!-- Page heading -->
+<div class="page-heading">
+    <div class="page-heading-left">
+        <div class="heading-icon"><i class="fas fa-graduation-cap"></i></div>
+        <h2>Grades</h2>
+        @if (Model.Any())
+        {
+            <span class="count-badge">@Model.Count()</span>
+        }
     </div>
-</form>
+</div>
 
-@if (Model.Any())
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Student</th>
-                <th>Average Grade</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var student in Model)
-            {
-                <tr>
-                    <td>@student.Student.FirstName @student.Student.LastName</td>
-                    <td>@student.AverageGrade.ToString("F2")</td> 
-                    <td>@student.Status</td> 
-                    <td>
-                        <a class="btn btn-info btn-sm" asp-action="Details" asp-route-studentId="@student.Student.Id">Details</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <div class="alert alert-info">Please select a class to see the students and their grades.</div>
-}
+<!-- Card with filter in header -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span>Grade List</span>
+        <form asp-action="Index" method="get" class="d-flex align-items-center gap-2">
+            <label for="SchoolClassId" class="form-label mb-0" style="font-size:13px; color:#fff; white-space:nowrap;">Class:</label>
+            <select id="SchoolClassId" name="classId" class="form-select form-select-sm" style="min-width:160px; background:#fff; color:#1a0a0e;">
+                <option value="">— All Classes —</option>
+                @foreach (var schoolClass in ViewBag.Classes)
+                {
+                    <option value="@schoolClass.Value">@schoolClass.Text</option>
+                }
+            </select>
+            <button type="submit" class="btn btn-sm btn-light">Filter</button>
+        </form>
+    </div>
+
+    <div class="card-body p-0">
+        @if (Model.Any())
+        {
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Average Grade</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var student in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar-xs">
+                                        @(student.Student.FirstName[0].ToString())@(student.Student.LastName[0].ToString())
+                                    </div>
+                                    @student.Student.FirstName @student.Student.LastName
+                                </div>
+                            </td>
+                            <td>
+                                <strong>@student.AverageGrade.ToString("F2")</strong>
+                            </td>
+                            <td>
+                                @{
+                                    var isPassing = student.AverageGrade >= 60;
+                                    var badgeClass = isPassing ? "badge badge-pass" : "badge badge-fail";
+                                    var statusText = student.Status?.ToString() ?? (isPassing ? "Pass" : "Fail");
+                                }
+                                <span class="@badgeClass">@statusText</span>
+                            </td>
+                            <td class="text-center">
+                                <a class="btn btn-primary btn-sm"
+                                   asp-action="Details"
+                                   asp-route-studentId="@student.Student.Id"
+                                   title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-graduation-cap"></i>
+                <p>Select a class above to view student grades.</p>
+            </div>
+        }
+    </div>
+</div>

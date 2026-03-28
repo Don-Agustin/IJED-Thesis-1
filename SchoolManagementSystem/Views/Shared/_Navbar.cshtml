@@ -1,6 +1,6 @@
 ﻿<nav class="navbar navbar-expand-lg navbar-light">
     <a class="navbar-brand" href="@Url.Action("Index", "Home")">
-        <img src="@Url.Content("~/images/seal.png")" alt="DevArt Academy Logo" style="height: 70px;">
+        <img src="@Url.Content("~/images/seal.png")" alt="Infant Jesus Learning Academy" style="height: 70px;">
         Infant Jesus Learning Academy
     </a>
     <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse"
@@ -17,8 +17,6 @@
 
             @if (User.Identity.IsAuthenticated)
             {
-
-                <!-- Link to Dashboard based on user role -->
                 @if (User.IsInRole("Admin"))
                 {
                     <li class="nav-item">
@@ -44,27 +42,19 @@
                     </li>
                 }
 
-                <!-- Alert Notifications -->
                 @if (User.IsInRole("Admin"))
                 {
                     <li class="nav-item">
-                        @await Component.InvokeAsync("Notifications") <!-- Call to View Component -->
+                        @await Component.InvokeAsync("Notifications")
                     </li>
-                }
-
-                <!-- Register account available for Admin only -->
-                @if (User.IsInRole("Admin"))
-                {
                     <li class="nav-item">
                         <a class="nav-link" href="@Url.Action("Register", "Account")">Register</a>
                     </li>
                 }
 
-                <!-- Account Dropdown -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarAccount" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Account
-                    </a>
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarAccount" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">Account</a>
                     <ul class="dropdown-menu" aria-labelledby="navbarAccount">
                         <li><a class="dropdown-item" href="@Url.Action("ChangeUser", "Account")">Profile</a></li>
                         <li><a class="dropdown-item" href="@Url.Action("ChangePassword", "Account")">Change Password</a></li>
@@ -75,7 +65,9 @@
             else
             {
                 <li class="nav-item">
-                    @Html.ActionLink("Login", "Login", "Account", null, new { @class = "nav-link" })
+                    {{! BUG FIX: was "Login","Login" which hit the old bare GET Login()
+                    and skipped the selection screen. Now points to LoginSelection. !}}
+                    <a class="nav-link" href="@Url.Action("LoginSelection", "Account")">Login</a>
                 </li>
             }
         </ul>

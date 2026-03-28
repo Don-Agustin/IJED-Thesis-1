@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "_Dashboard";
     ViewBag.PageTitle = "Students";
     ViewBag.SubPageTitle = "Create";
@@ -104,7 +104,7 @@
                             <select asp-for="Status" class="form-select" required>
                                 <option value="">Select Status</option>
                                 @foreach (var status in Enum.GetValues(typeof(SchoolManagementSystem.Data.Entities.StudentStatus))
-                                                                .Cast<SchoolManagementSystem.Data.Entities.StudentStatus>())
+                                    .Cast<SchoolManagementSystem.Data.Entities.StudentStatus>())
                                 {
                                     <option value="@status">@status</option>
                                 }
@@ -155,9 +155,9 @@
 
         @if (TempData["ErrorMessage"] != null)
         {
-                <text>
-                Swal.fire({ title: 'Error', text: '@TempData["ErrorMessage"]', icon: 'error' });
-                </text>
+            <text>
+            Swal.fire({ title: 'Error', text: '@TempData["ErrorMessage"]', icon: 'error' });
+            </text>
         }
 
         setupSweetAlertOnSubmit("createStudentForm", "Create this student?");

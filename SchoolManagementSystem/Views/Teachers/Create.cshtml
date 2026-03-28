@@ -10,122 +10,163 @@
     ViewData["Title"] = "Create Teacher";
 }
 
-<h2>Create Teacher</h2>
-
-@if (!ViewData.ModelState.IsValid)
-{
-    <div class="alert alert-danger">
-        <ul>
-            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-            {
-                <li>@error.ErrorMessage</li>
-            }
-        </ul>
+<!-- Page heading -->
+<div class="page-heading mb-4">
+    <div class="page-heading-left">
+        <div class="heading-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+        <h2>Create Teacher</h2>
     </div>
-}
+    <a asp-action="Index" class="btn btn-sm btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Back to List
+    </a>
+</div>
 
-<form id="createTeacherForm" asp-action="Create" method="post" enctype="multipart/form-data">
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <label asp-for="UserId" class="form-label">Pending User <span class="text-danger">*</span></label>
-            <select asp-for="UserId" class="form-select" asp-items="ViewBag.PendingUsers" id="pendingUserDropdown" required>
-                <option value="">Select User</option> <!-- Default option -->
-            </select>
-            <span asp-validation-for="UserId" class="text-danger"></span>
-        </div>
-        <div class="col-md-6">
-            <label asp-for="AcademicDegree" class="form-label">Academic Degree</label>
-            <select asp-for="AcademicDegree" class="form-select" asp-items="Html.GetEnumSelectList<SchoolManagementSystem.Data.Entities.AcademicDegree>()">
-                <option value="">Select Degree</option> <!-- Default option -->
-            </select>
-            <span asp-validation-for="AcademicDegree" class="text-danger"></span>
-        </div>
-    </div>
+<div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-10">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-chalkboard-teacher me-2"></i>Teacher Information
+            </div>
 
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <label asp-for="FirstName" class="form-label">First Name <span class="text-danger">*</span></label>
-            <input asp-for="FirstName" class="form-control" required />
-            <span asp-validation-for="FirstName" class="text-danger"></span>
-        </div>
-        <div class="col-md-6">
-            <label asp-for="LastName" class="form-label">Last Name <span class="text-danger">*</span></label>
-            <input asp-for="LastName" class="form-control" required />
-            <span asp-validation-for="LastName" class="text-danger"></span>
-        </div>
-    </div>
+            <div class="card-body">
 
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <label asp-for="HireDate" class="form-label">Hire Date <span class="text-danger">*</span></label>
-            <input asp-for="HireDate" type="date" class="form-control" required />
-            <span asp-validation-for="HireDate" class="text-danger"></span>
-        </div>
-        <div class="col-md-6">
-            <label asp-for="Status" class="form-label">Status <span class="text-danger">*</span></label>
-            <select asp-for="Status" class="form-select" required>
-                <option value="">Select Status</option> <!-- Default option -->
-                @foreach (var status in Enum.GetValues(typeof(SchoolManagementSystem.Data.Entities.TeacherStatus)).Cast<SchoolManagementSystem.Data.Entities.TeacherStatus>())
+                @if (!ViewData.ModelState.IsValid)
                 {
-                    <option value="@status">@status</option>
+                    <div class="alert alert-danger mb-4">
+                        <ul class="mb-0">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        </ul>
+                    </div>
                 }
-            </select>
-            <span asp-validation-for="Status" class="text-danger"></span>
-        </div>
-    </div>
 
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <label asp-for="ImageFile" class="form-label">Image</label>
-            <input asp-for="ImageFile" type="file" class="form-control" id="imageUpload" />
-            <span asp-validation-for="ImageFile" class="text-danger"></span>
-        </div>
+                <form id="createTeacherForm" asp-action="Create" method="post" enctype="multipart/form-data">
 
-        <div class="col-md-6">
-            <label>Image Preview</label>
-            <img id="imagePreview" src="@Model.ImageFullPath" alt="Image Preview" style="max-width: 150px; max-height: 150px; border-radius: 10px;" />
-        </div>
-    </div>
+                    <!-- Avatar upload -->
+                    <div class="avatar-upload-section mb-4">
+                        <div class="avatar-upload-circle" onclick="document.getElementById('imageUpload').click()" title="Click to upload photo">
+                            <img id="imagePreview" src="@(Model?.ImageFullPath ?? "/images/noimage.png")" alt="Profile Photo" />
+                            <div class="avatar-upload-overlay">
+                                <i class="fas fa-camera"></i>
+                                <span>Upload Photo</span>
+                            </div>
+                        </div>
+                        <input asp-for="ImageFile" type="file" id="imageUpload" accept="image/*" hidden />
+                        <span asp-validation-for="ImageFile" class="text-danger d-block text-center mt-1" style="font-size:12px"></span>
+                    </div>
 
-    <div class="mb-3">
-        <label class="form-label">School Classes</label>
-        @foreach (var schoolClass in ViewBag.SchoolClasses)
-        {
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="SchoolClassIds" value="@schoolClass.Value" id="schoolClass_@schoolClass.Value" />
-                <label class="form-check-label" for="schoolClass_@schoolClass.Value">
-                    @schoolClass.Text
-                </label>
+                    <!-- Section: Account -->
+                    <div class="form-section-label">Account & Qualifications</div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="UserId" class="form-label">Pending User <span class="text-danger">*</span></label>
+                            <select asp-for="UserId" class="form-select" asp-items="ViewBag.PendingUsers" id="pendingUserDropdown" required>
+                                <option value="">Select User</option>
+                            </select>
+                            <span asp-validation-for="UserId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="AcademicDegree" class="form-label">Academic Degree</label>
+                            <select asp-for="AcademicDegree" class="form-select"
+                                    asp-items="Html.GetEnumSelectList<SchoolManagementSystem.Data.Entities.AcademicDegree>()">
+                                <option value="">Select Degree</option>
+                            </select>
+                            <span asp-validation-for="AcademicDegree" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Section: Personal Info -->
+                    <div class="form-section-label">Personal Information</div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="FirstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                            <input asp-for="FirstName" class="form-control" required />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                            <input asp-for="LastName" class="form-control" required />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Section: Employment -->
+                    <div class="form-section-label">Employment Details</div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="HireDate" class="form-label">Hire Date <span class="text-danger">*</span></label>
+                            <input asp-for="HireDate" type="date" class="form-control" required />
+                            <span asp-validation-for="HireDate" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Status" class="form-label">Status <span class="text-danger">*</span></label>
+                            <select asp-for="Status" class="form-select" required>
+                                <option value="">Select Status</option>
+                                @foreach (var status in Enum.GetValues(typeof(SchoolManagementSystem.Data.Entities.TeacherStatus))
+                                                                .Cast<SchoolManagementSystem.Data.Entities.TeacherStatus>())
+                                {
+                                    <option value="@status">@status</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Section: Assignments -->
+                    <div class="form-section-label">Classes & Subjects</div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">School Classes</label>
+                            <div class="checkbox-group">
+                                @foreach (var schoolClass in ViewBag.SchoolClasses)
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="SchoolClassIds"
+                                               value="@schoolClass.Value" id="sc_@schoolClass.Value" />
+                                        <label class="form-check-label" for="sc_@schoolClass.Value">@schoolClass.Text</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Subjects</label>
+                            <div class="checkbox-group">
+                                @foreach (var subject in ViewBag.Subjects)
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="SubjectIds"
+                                               value="@subject.Value" id="subj_@subject.Value" />
+                                        <label class="form-check-label" for="subj_@subject.Value">@subject.Text</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="form-actions">
+                        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Create Teacher
+                        </button>
+                    </div>
+
+                </form>
             </div>
-        }
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label class="form-label">Subjects</label>
-        @foreach (var subject in ViewBag.Subjects)
-        {
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="SubjectIds" value="@subject.Value" id="subject_@subject.Value" />
-                <label class="form-check-label" for="subject_@subject.Value">
-                    @subject.Text
-                </label>
-            </div>
-        }
-    </div>
-
-    <button type="submit" class="btn btn-primary">Create Teacher</button>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/formHelpers.js"></script>
-
     <script>
         document.getElementById("pendingUserDropdown").addEventListener("change", function () {
             const selectedUserId = this.value;
             const pendingUsers = @Html.Raw(Json.Serialize(Model.PendingUsers));
-
-            const selectedUser = pendingUsers.find(user => user.id === selectedUserId);
+            const selectedUser = pendingUsers.find(u => u.id === selectedUserId);
             if (selectedUser) {
                 document.getElementById("FirstName").value = selectedUser.firstName;
                 document.getElementById("LastName").value = selectedUser.lastName;
@@ -135,10 +176,14 @@
             }
         });
 
-        // Preview the uploaded image
-        setupImageUploadPreview("imageUpload", "imagePreview");
+        document.getElementById("imageUpload").addEventListener("change", function () {
+            const file = this.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => document.getElementById("imagePreview").src = e.target.result;
+            reader.readAsDataURL(file);
+        });
 
-        // SweetAlert2 confirmation before submitting the form
-        setupSweetAlertOnSubmit("createTeacherForm", "Teacher created successfully.");
+        setupSweetAlertOnSubmit("createTeacherForm", "Create this teacher?");
     </script>
 }

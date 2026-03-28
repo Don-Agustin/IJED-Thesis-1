@@ -1,7 +1,49 @@
 ﻿@{
     Layout = "_Dashboard";
     ViewBag.Title = "Student Dashboard";
+    ViewBag.PageTitle = "Dashboard";
 }
 
-<h1>Student Dashboard</h1>
-<p>Welcome, Student!</p>
+@model SchoolManagementSystem.Models.DashboardViewModel
+
+<!-- ═══════════════ WELCOME BANNER ═══════════════ -->
+<div class="welcome-banner mb-4">
+    <div class="welcome-text">
+        <h2>Welcome back, @Model.WelcomeName 👋</h2>
+        <p>Here's a summary of your academic progress.</p>
+    </div>
+</div>
+
+<!-- ═══════════════ STAT CARDS ═══════════════ -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-6">
+        <div class="stat-card @(Model.AttendanceRate < 75 ? "stat-card--warn" : "")">
+            <div class="stat-icon stat-icon--teal">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">@Model.AttendanceRate<small>%</small></span>
+                <span class="stat-label">My Attendance Rate</span>
+            </div>
+            <div class="stat-bar">
+                <div class="stat-bar-fill" style="width: @Model.AttendanceRate%"></div>
+            </div>
+            @if (Model.AttendanceRate < 75)
+            {
+                <span class="stat-sub text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Below 75% threshold</span>
+            }
+        </div>
+    </div>
+    <div class="col-12 col-md-6 d-flex align-items-stretch">
+        <div class="card w-100">
+            <div class="card-header"><i class="fas fa-bolt me-2"></i>Quick Access</div>
+            <div class="card-body quick-links">
+                <a asp-controller="Grades" asp-action="MyGrades" class="quick-link"><i class="fas fa-graduation-cap"></i>My Grades</a>
+                <a asp-controller="Attendance" asp-action="MyAttendances" class="quick-link"><i class="fas fa-calendar-check"></i>My Attendance</a>
+                <a asp-controller="Courses" asp-action="Index" class="quick-link"><i class="fas fa-book"></i>Courses</a>
+                <a asp-controller="Subjects" asp-action="Index" class="quick-link"><i class="fas fa-book-open"></i>Subjects</a>
+                <a asp-controller="Account" asp-action="ChangeUser" class="quick-link"><i class="fas fa-user-cog"></i>My Profile</a>
+            </div>
+        </div>
+    </div>
+</div>

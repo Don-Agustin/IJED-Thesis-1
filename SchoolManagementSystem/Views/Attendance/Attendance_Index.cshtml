@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "_Dashboard";
     ViewBag.PageTitle = "Attendance";
     ViewBag.SubPageTitle = "Index";
@@ -53,10 +53,10 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        var status = item.OverallAttendanceStatus();
-                        var isOk = status?.ToString().Contains("Good") == true || status?.ToString().Contains("Pass") == true;
-                        var isWarn = item.TotalAbsences > 0 && !isOk;
-                        var badgeCls = isOk ? "badge badge-pass" : isWarn ? "badge badge-fail" : "badge badge-pending";
+                        var status     = item.OverallAttendanceStatus();
+                        var isOk       = status?.ToString().Contains("Good") == true || status?.ToString().Contains("Pass") == true;
+                        var isWarn     = item.TotalAbsences > 0 && !isOk;
+                        var badgeCls   = isOk ? "badge badge-pass" : isWarn ? "badge badge-fail" : "badge badge-pending";
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
