@@ -1,0 +1,292 @@
+@{
+    Layout = "_Dashboard";
+    ViewBag.Title = "Teacher Courses";
+    ViewBag.PageTitle = "Courses";
+}
+
+@model SchoolManagementSystem.Models.TeacherCoursesViewModel
+
+<!-- ═══════════ WELCOME BAR ═══════════ -->
+<div class="t-welcome-bar mb-3">
+    <div class="t-welcome-left">
+        <div class="t-avatar">
+            @(Model.Teacher?.FirstName?.Length > 0 ? Model.Teacher.FirstName[0].ToString().ToUpper() : "T")
+        </div>
+        <div>
+            <span class="t-welcome-label">Welcome,</span>
+            <span class="t-welcome-name">Teacher @Model.Teacher?.FirstName @Model.Teacher?.LastName</span>
+        </div>
+    </div>
+    <div class="t-search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search materials..." id="materialSearch" />
+    </div>
+</div>
+
+<!-- ═══════════ ADVISING CLASS CARDS ═══════════ -->
+<div class="section-heading mb-2">
+    <i class="fas fa-chalkboard me-2"></i>My Advising Classes &amp; Subjects
+</div>
+<div class="t-class-cards mb-4">
+    @foreach (var cls in Model.AdvisingClasses)
+    {
+        bool isActive = cls.SchoolClass.Id == Model.ActiveClassId;
+        <a asp-action="TeacherCourses" asp-controller="Dashboard"
+           asp-route-classId="@cls.SchoolClass.Id"
+           class="t-class-card @(isActive ? "t-class-card--active" : "") text-decoration-none">
+            <div class="t-class-icon"><i class="fas fa-laptop-code"></i></div>
+            <div class="t-class-name">@cls.SchoolClass.ClassName</div>
+            @if (cls.Subjects.Any())
+            {
+                <div class="t-class-subject">@cls.Subjects.First().Name</div>
+            }
+            <div class="t-class-meta">@cls.StudentCount students</div>
+        </a>
+    }
+</div>
+
+@if (Model.ActiveClass != null)
+{
+    <!-- ═══════════ ACTIVE CLASS HEADER ═══════════ -->
+    <div class="t-active-class-header mb-3">
+        <div>
+            <h3 class="mb-0">@Model.ActiveClass.SchoolClass.ClassName</h3>
+            @if (Model.ActiveClass.Subjects.Any())
+            {
+                <span class="t-active-class-subject">@Model.ActiveClass.Subjects.First().Name</span>
+            }
+        </div>
+        <span class="badge badge-pass">@Model.ActiveClass.StudentCount Students</span>
+    </div>
+
+    <!-- ═══════════ TABS ═══════════ -->
+    <div class="card">
+        <!-- Tab nav -->
+        <div class="t-tabs-nav">
+            <button class="t-tab-btn t-tab-btn--active" data-tab="modules">
+                <i class="fas fa-book me-1"></i>Learning Modules
+            </button>
+            <button class="t-tab-btn" data-tab="assessments">
+                <i class="fas fa-file-alt me-1"></i>Assessments
+            </button>
+            <button class="t-tab-btn" data-tab="activities">
+                <i class="fas fa-tasks me-1"></i>Activities &amp; Assignments
+            </button>
+        </div>
+
+        <!-- ── MODULES TAB ── -->
+        <div class="t-tab-panel" id="tab-modules">
+            <div class="t-tab-toolbar">
+                <span class="t-tab-count">@Model.Modules.Count() file(s)</span>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadModal"
+                        onclick="setUploadCategory('Module')">
+                    <i class="fas fa-upload me-1"></i>Upload New Module
+                </button>
+            </div>
+            @if (Model.Modules.Any())
+            {
+                <div class="t-material-table-wrap">
+                    <table class="table t-material-table mb-0">
+                        <thead><tr><th>Module Title</th><th>File Type</th><th>Date Uploaded</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            @foreach (var m in Model.Modules)
+                            {
+                                <tr>
+                                    <td>@m.Title</td>
+                                    <td><span class="t-file-badge t-file-badge--@m.FileType.ToLower()">@m.FileType</span></td>
+                                    <td>@m.UploadedOn.ToString("MMM d, yyyy")</td>
+                                    <td class="t-material-actions">
+                                        <button class="t-icon-btn" title="Edit" onclick="openEditMaterial(@m.Id,'@Html.Raw(m.Title.Replace("'","\\'"))','Module')"><i class="fas fa-edit"></i></button>
+                                        <button class="t-icon-btn" title="Download"><i class="fas fa-download"></i></button>
+                                        <form asp-action="DeleteMaterial" asp-controller="Dashboard" method="post" class="d-inline">
+                                            <input type="hidden" name="materialId" value="@m.Id" />
+                                            <input type="hidden" name="classId" value="@Model.ActiveClassId" />
+                                            <button type="submit" class="t-icon-btn t-icon-btn--danger" title="Delete"
+                                                    onclick="return confirm('Delete this module?')"><i class="fas fa-trash"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state" style="padding:36px 16px">
+                    <i class="fas fa-book"></i><p>No modules uploaded yet.</p>
+                </div>
+            }
+        </div>
+
+        <!-- ── ASSESSMENTS TAB ── -->
+        <div class="t-tab-panel d-none" id="tab-assessments">
+            <div class="t-tab-toolbar">
+                <span class="t-tab-count">@Model.Assessments.Count() file(s)</span>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadModal"
+                        onclick="setUploadCategory('Assessment')">
+                    <i class="fas fa-upload me-1"></i>Upload Assessment
+                </button>
+            </div>
+            @if (Model.Assessments.Any())
+            {
+                <div class="t-material-table-wrap">
+                    <table class="table t-material-table mb-0">
+                        <thead><tr><th>Title</th><th>Type</th><th>Date Uploaded</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            @foreach (var a in Model.Assessments)
+                            {
+                                <tr>
+                                    <td>@a.Title</td>
+                                    <td><span class="t-file-badge t-file-badge--@a.FileType.ToLower()">@a.FileType</span></td>
+                                    <td>@a.UploadedOn.ToString("MMM d, yyyy")</td>
+                                    <td class="t-material-actions">
+                                        <button class="t-icon-btn" title="Edit" onclick="openEditMaterial(@a.Id,'@Html.Raw(a.Title.Replace("'","\\'"))','Assessment')"><i class="fas fa-edit"></i></button>
+                                        <button class="t-icon-btn" title="Download"><i class="fas fa-download"></i></button>
+                                        <form asp-action="DeleteMaterial" asp-controller="Dashboard" method="post" class="d-inline">
+                                            <input type="hidden" name="materialId" value="@a.Id" />
+                                            <input type="hidden" name="classId" value="@Model.ActiveClassId" />
+                                            <button type="submit" class="t-icon-btn t-icon-btn--danger" title="Delete"
+                                                    onclick="return confirm('Delete?')"><i class="fas fa-trash"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state" style="padding:36px 16px">
+                    <i class="fas fa-file-alt"></i><p>No assessments uploaded yet.</p>
+                </div>
+            }
+        </div>
+
+        <!-- ── ACTIVITIES TAB ── -->
+        <div class="t-tab-panel d-none" id="tab-activities">
+            <div class="t-tab-toolbar">
+                <span class="t-tab-count">@Model.Activities.Count() file(s)</span>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadModal"
+                        onclick="setUploadCategory('Activity')">
+                    <i class="fas fa-upload me-1"></i>Upload Activity
+                </button>
+            </div>
+            @if (Model.Activities.Any())
+            {
+                <div class="t-material-table-wrap">
+                    <table class="table t-material-table mb-0">
+                        <thead><tr><th>Title</th><th>Type</th><th>Date Uploaded</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            @foreach (var a in Model.Activities)
+                            {
+                                <tr>
+                                    <td>@a.Title</td>
+                                    <td><span class="t-file-badge t-file-badge--@a.FileType.ToLower()">@a.FileType</span></td>
+                                    <td>@a.UploadedOn.ToString("MMM d, yyyy")</td>
+                                    <td class="t-material-actions">
+                                        <button class="t-icon-btn" title="Edit" onclick="openEditMaterial(@a.Id,'@Html.Raw(a.Title.Replace("'","\\'"))','Activity')"><i class="fas fa-edit"></i></button>
+                                        <button class="t-icon-btn" title="Download"><i class="fas fa-download"></i></button>
+                                        <form asp-action="DeleteMaterial" asp-controller="Dashboard" method="post" class="d-inline">
+                                            <input type="hidden" name="materialId" value="@a.Id" />
+                                            <input type="hidden" name="classId" value="@Model.ActiveClassId" />
+                                            <button type="submit" class="t-icon-btn t-icon-btn--danger" title="Delete"
+                                                    onclick="return confirm('Delete?')"><i class="fas fa-trash"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state" style="padding:36px 16px">
+                    <i class="fas fa-tasks"></i><p>No activities uploaded yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="empty-state mt-4">
+        <i class="fas fa-chalkboard"></i>
+        <p>No advising classes assigned. Contact your administrator.</p>
+    </div>
+}
+
+<!-- ═══════════ UPLOAD MODAL ═══════════ -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content t-modal">
+            <form asp-action="UploadMaterial" asp-controller="Dashboard" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="classId" value="@Model.ActiveClassId" />
+                <input type="hidden" name="category" id="uploadCategory" value="Module" />
+                <div class="modal-header t-modal-header">
+                    <h5 class="modal-title"><i class="fas fa-upload me-2"></i>Upload Material</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Title <span class="text-danger">*</span></label>
+                        <input type="text" name="title" class="form-control" required placeholder="e.g. Chapter 1: Intro to Python" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">File <span class="text-danger">*</span></label>
+                        <div class="t-file-drop-zone" onclick="document.getElementById('matFile').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Click to choose or drag &amp; drop</p>
+                            <small>Supported: PDF, PPT, PPTX, DOC, DOCX</small>
+                            <span id="fileLabel" class="t-file-label"></span>
+                        </div>
+                        <input type="file" name="file" id="matFile" accept=".pdf,.ppt,.pptx,.doc,.docx"
+                               hidden onchange="document.getElementById('fileLabel').textContent = this.files[0]?.name ?? ''" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-save me-1"></i>Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+// Tab switching
+document.querySelectorAll('.t-tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.t-tab-btn').forEach(b => b.classList.remove('t-tab-btn--active'));
+        document.querySelectorAll('.t-tab-panel').forEach(p => p.classList.add('d-none'));
+        this.classList.add('t-tab-btn--active');
+        document.getElementById('tab-' + this.dataset.tab).classList.remove('d-none');
+    });
+});
+
+function setUploadCategory(cat) {
+    document.getElementById('uploadCategory').value = cat;
+    document.querySelector('#uploadModal .modal-title').innerHTML =
+        '<i class="fas fa-upload me-2"></i>Upload ' + cat;
+}
+
+function openEditMaterial(id, title, cat) {
+    document.getElementById('uploadCategory').value = cat;
+    document.querySelector('#uploadModal .modal-title').innerHTML =
+        '<i class="fas fa-edit me-2"></i>Edit ' + cat;
+    document.querySelector('#uploadModal [name="title"]').value = title;
+    new bootstrap.Modal(document.getElementById('uploadModal')).show();
+}
+
+// Live search filter
+document.getElementById('materialSearch')?.addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.t-material-table tbody tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+});
+</script>
+}

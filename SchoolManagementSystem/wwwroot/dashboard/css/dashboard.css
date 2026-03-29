@@ -838,3 +838,682 @@ body.sidebar-collapsed .content-wrapper {
     border: none !important;
     border-radius: 0 0 12px 12px !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   TEACHER MODULE — shared components
+═══════════════════════════════════════════════════════════════ */
+
+/* Section headings inside teacher pages */
+.section-heading {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a0a0e;
+    display: flex;
+    align-items: center;
+}
+
+    .section-heading i {
+        color: #7b1e2b;
+    }
+
+/* ── Welcome bar ── */
+.t-welcome-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #fff;
+    border: 1px solid #ede8e9;
+    border-radius: 12px;
+    padding: 14px 20px;
+    flex-wrap: wrap;
+}
+
+.t-welcome-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.t-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #7b1e2b;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.t-welcome-label {
+    font-size: 12px;
+    color: #9a8a8e;
+    display: block;
+}
+
+.t-welcome-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a0a0e;
+}
+
+.t-current-period {
+    font-size: 12px;
+    font-weight: 500;
+    background: #fdf0f2;
+    color: #7b1e2b;
+    border-radius: 20px;
+    padding: 5px 14px;
+    white-space: nowrap;
+}
+
+.t-search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f5f3f4;
+    border: 1px solid #ede8e9;
+    border-radius: 20px;
+    padding: 6px 14px;
+    min-width: 180px;
+}
+
+    .t-search-box i {
+        color: #b0a0a4;
+        font-size: 13px;
+    }
+
+    .t-search-box input {
+        border: none;
+        background: transparent;
+        outline: none;
+        font-size: 13px;
+        color: #4a4a4a;
+        width: 140px;
+    }
+
+/* ── Class cards ── */
+.t-class-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.t-class-card {
+    background: #fff;
+    border: 1px solid #ede8e9;
+    border-radius: 12px;
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+}
+
+    .t-class-card:hover {
+        box-shadow: 0 6px 20px rgba(123,30,43,0.10);
+        border-color: #d4748a;
+    }
+
+.t-class-card--active {
+    border-color: #7b1e2b;
+    background: #fdf0f2;
+    box-shadow: 0 4px 14px rgba(123,30,43,0.15);
+}
+
+.t-class-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #fdf0f2;
+    color: #7b1e2b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    margin-bottom: 6px;
+}
+
+.t-class-card--active .t-class-icon {
+    background: #7b1e2b;
+    color: #fff;
+}
+
+.t-class-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a0a0e;
+}
+
+.t-class-subject {
+    font-size: 12px;
+    color: #7b1e2b;
+    font-weight: 500;
+}
+
+.t-class-meta {
+    font-size: 11px;
+    color: #9a8a8e;
+    margin-top: 2px;
+}
+
+/* ── Schedule list ── */
+.t-schedule-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.t-schedule-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    border-bottom: 1px solid #f5f0f1;
+    font-size: 13px;
+}
+
+    .t-schedule-item:last-child {
+        border-bottom: none;
+    }
+
+.t-schedule-time {
+    font-size: 12px;
+    font-weight: 600;
+    color: #9a8a8e;
+    min-width: 46px;
+}
+
+.t-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.t-dot--green {
+    background: #3b6d11;
+}
+
+.t-dot--amber {
+    background: #ba7517;
+}
+
+.t-dot--blue {
+    background: #185fa5;
+}
+
+.t-dot--gray {
+    background: #888;
+}
+
+.t-dot--maroon {
+    background: #7b1e2b;
+}
+
+.t-schedule-title {
+    color: #3a3a3a;
+    line-height: 1.4;
+}
+
+.badge-date {
+    font-size: 11px;
+    font-weight: 500;
+    background: #fdf0f2;
+    color: #7b1e2b;
+    border-radius: 20px;
+    padding: 3px 10px;
+}
+
+/* ── Activity list ── */
+.t-activity-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.t-activity-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    border-bottom: 1px solid #f5f0f1;
+    font-size: 13px;
+    color: #3a3a3a;
+    transition: background 0.15s;
+}
+
+    .t-activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .t-activity-item:hover {
+        background: #faf8f8;
+    }
+
+.t-activity-item--done {
+    opacity: 0.5;
+    text-decoration: line-through;
+}
+
+.t-activity-icon {
+    color: #7b1e2b;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.t-activity-done-icon {
+    color: #3b6d11;
+    font-size: 14px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TEACHER CALENDAR
+═══════════════════════════════════════════════════════════════ */
+.t-calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.t-cal-header {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #9a8a8e;
+    padding: 6px 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.t-cal-day {
+    min-height: 72px;
+    padding: 4px 5px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    overflow: hidden;
+}
+
+    .t-cal-day:hover {
+        background: #faf8f8;
+        border-color: #ede8e9;
+    }
+
+.t-cal-day--empty {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.t-cal-day--today {
+    background: #fdf0f2;
+    border-color: #7b1e2b !important;
+}
+
+.t-cal-day--selected {
+    background: #fdf0f2;
+    border-color: #a94442;
+}
+
+.t-cal-num {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4a4a4a;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.t-cal-day--today .t-cal-num {
+    color: #7b1e2b;
+}
+
+/* Calendar event pills */
+.t-cal-event {
+    font-size: 10px;
+    font-weight: 500;
+    border-radius: 3px;
+    padding: 1px 5px;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: default;
+}
+
+.t-cal-event--maroon {
+    background: #fdf0f2;
+    color: #7b1e2b;
+    border-left: 2px solid #7b1e2b;
+}
+
+.t-cal-event--amber {
+    background: #faeeda;
+    color: #854f0b;
+    border-left: 2px solid #ba7517;
+}
+
+.t-cal-event--green {
+    background: #eaf3de;
+    color: #3b6d11;
+    border-left: 2px solid #639922;
+}
+
+.t-cal-event--blue {
+    background: #e6f1fb;
+    color: #185fa5;
+    border-left: 2px solid #378add;
+}
+
+/* ── Event detail list ── */
+.t-detail-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.t-detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f5f0f1;
+}
+
+    .t-detail-item:last-child {
+        border-bottom: none;
+    }
+
+.t-detail-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+.t-detail-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+    min-width: 0;
+}
+
+.t-detail-date {
+    font-size: 11px;
+    color: #9a8a8e;
+}
+
+.t-detail-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1a0a0e;
+}
+
+.t-detail-sub {
+    font-size: 11px;
+    color: #b0a0a4;
+}
+
+.t-detail-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+/* ── Icon buttons ── */
+.t-icon-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid #ede8e9;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #7b1e2b;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+    .t-icon-btn:hover {
+        background: #fdf0f2;
+        border-color: #d4748a;
+    }
+
+.t-icon-btn--danger {
+    color: #a32d2d;
+}
+
+    .t-icon-btn--danger:hover {
+        background: #fcebeb;
+        border-color: #f09595;
+    }
+
+/* ── Modal ── */
+.t-modal {
+    border-radius: 14px;
+    overflow: hidden;
+    border: none;
+}
+
+.t-modal-header {
+    background: linear-gradient(135deg, #7b1e2b, #a94442);
+    color: #fff;
+    border: none;
+    padding: 16px 20px;
+}
+
+    .t-modal-header .modal-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+    }
+
+.t-modal .modal-body {
+    padding: 20px;
+}
+
+.t-modal .modal-footer {
+    border-top: 1px solid #ede8e9;
+    padding: 12px 20px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TEACHER COURSES — tabs + table
+═══════════════════════════════════════════════════════════════ */
+.t-active-class-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0 8px;
+    border-bottom: 1px solid #ede8e9;
+}
+
+    .t-active-class-header h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a0a0e;
+    }
+
+.t-active-class-subject {
+    font-size: 13px;
+    color: #7b1e2b;
+    font-weight: 500;
+}
+
+/* Tabs nav */
+.t-tabs-nav {
+    display: flex;
+    border-bottom: 2px solid #ede8e9;
+    padding: 0 4px;
+    gap: 4px;
+    overflow-x: auto;
+}
+
+.t-tab-btn {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 12px 18px;
+    border: none;
+    background: none;
+    color: #9a8a8e;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+    .t-tab-btn:hover {
+        color: #7b1e2b;
+    }
+
+.t-tab-btn--active {
+    color: #7b1e2b;
+    border-bottom-color: #7b1e2b;
+    font-weight: 600;
+}
+
+/* Tab panel toolbar */
+.t-tab-panel {
+    padding: 0;
+}
+
+.t-tab-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f5f0f1;
+}
+
+.t-tab-count {
+    font-size: 12px;
+    color: #9a8a8e;
+}
+
+/* Materials table */
+.t-material-table-wrap {
+    overflow-x: auto;
+}
+
+.t-material-table {
+    font-size: 13px;
+}
+
+    .t-material-table thead th {
+        background: linear-gradient(90deg, #7b1e2b, #a94442);
+        color: #fff;
+        border: none;
+        font-weight: 600;
+        padding: 11px 16px;
+    }
+
+    .t-material-table tbody td {
+        padding: 11px 16px;
+        vertical-align: middle;
+        color: #3a3a3a;
+    }
+
+    .t-material-table tbody tr:hover {
+        background: #fdf0f2;
+    }
+
+.t-material-actions {
+    display: flex;
+    gap: 4px;
+}
+
+/* File type badges */
+.t-file-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+}
+
+.t-file-badge--pdf {
+    background: #fcebeb;
+    color: #a32d2d;
+}
+
+.t-file-badge--ppt,
+.t-file-badge--pptx {
+    background: #faeeda;
+    color: #854f0b;
+}
+
+.t-file-badge--doc,
+.t-file-badge--docx {
+    background: #e6f1fb;
+    color: #185fa5;
+}
+
+.t-file-badge--quiz {
+    background: #eaf3de;
+    color: #3b6d11;
+}
+
+.t-file-badge--exam {
+    background: #fbeaf0;
+    color: #993556;
+}
+
+.t-file-badge--task {
+    background: #fdf0f2;
+    color: #7b1e2b;
+}
+
+/* File drop zone in upload modal */
+.t-file-drop-zone {
+    border: 2px dashed #d4748a;
+    border-radius: 10px;
+    background: #fdf0f2;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+    .t-file-drop-zone:hover {
+        background: #faf5f6;
+        border-color: #7b1e2b;
+    }
+
+    .t-file-drop-zone i {
+        font-size: 28px;
+        color: #7b1e2b;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .t-file-drop-zone p {
+        font-size: 13px;
+        color: #4a4a4a;
+        margin: 0 0 4px;
+    }
+
+    .t-file-drop-zone small {
+        font-size: 11px;
+        color: #9a8a8e;
+    }
+
+.t-file-label {
+    font-size: 12px;
+    color: #7b1e2b;
+    font-weight: 500;
+    display: block;
+    margin-top: 6px;
+}
