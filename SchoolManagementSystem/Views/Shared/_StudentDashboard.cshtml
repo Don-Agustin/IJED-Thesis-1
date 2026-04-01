@@ -1,0 +1,316 @@
+@* ─────────────────────────────────────────────────────────────────────────────
+   _StudentDashboard.cshtml  —  Student-specific layout
+   Extends the existing dashboard infrastructure with:
+     • Sidebar profile header  (avatar · full name · student ID)
+     • Student nav menu        (Profile / Home / Calendar / Courses /
+                                Catalog / Guardians / Help / Logout)
+     • Topbar                  (page title · search · inbox · notifications ·
+                                profile avatar dropdown)
+   COLOR: maroon theme via existing theme-ijed.css variables.
+   DB-READY: student name, ID, avatar URL, unread counts all come from
+             ViewBag properties set in the controller – see comments.
+   ────────────────────────────────────────────────────────────────────────── *@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Infant Jesus Learning Academy</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="@Url.Content("~/images/seal.png")" type="image/x-icon">
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Syncfusion -->
+    <link href="https://cdn.syncfusion.com/ej2/material.css" rel="stylesheet" />
+
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <!-- Dashboard CSS (layout geometry) -->
+    <link rel="stylesheet" href="@Url.Content("~/dashboard/css/dashboard.css")?v=@Guid.NewGuid()">
+
+    <!-- IJED Theme (maroon brand colors — loads after dashboard.css) -->
+    <link rel="stylesheet" href="~/css/theme-ijed.css" asp-append-version="true">
+
+    <!-- Student sidebar / topbar additions -->
+    <link rel="stylesheet" href="@Url.Content("~/dashboard/css/student-sidebar.css")?v=@Guid.NewGuid()">
+
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+
+    @* ═══════════════════════════════════════════════════════════════
+       STUDENT SIDEBAR
+       Controller should set these ViewBag properties:
+         ViewBag.StudentFullName  → e.g. "Sarah Jenkins"
+         ViewBag.StudentId        → e.g. "S20230541"
+         ViewBag.StudentAvatarUrl → e.g. "/uploads/avatars/sarah.jpg"
+                                    (null → initials fallback is used)
+       ═══════════════════════════════════════════════════════════════ *@
+    <aside class="sidebar student-sidebar" id="sidebar">
+
+        @* ── Collapse toggle (chevron) inside sidebar header ── *@
+        <button class="student-sidebar-collapse-btn" id="studentSidebarCollapseBtn"
+                aria-label="Collapse sidebar" title="Collapse sidebar">
+            <i class="fas fa-chevron-left" id="collapseIcon"></i>
+        </button>
+
+        @* ── Profile header ── *@
+        <div class="student-profile-header">
+            @{
+                // DB-READY: replace ViewBag.StudentAvatarUrl with student.ProfilePhotoUrl from DB
+                string? avatarUrl = ViewBag.StudentAvatarUrl as string;
+
+                // DB-READY: replace ViewBag.StudentFullName with student.FullName from DB
+                string studentName = ViewBag.StudentFullName as string
+                                  ?? User.Identity?.Name?.Split('@')[0] ?? "Student";
+
+                // DB-READY: replace ViewBag.StudentId with student.StudentNumber from DB
+                string studentId = ViewBag.StudentId as string ?? "—";
+
+                // Compute two-letter initials for avatar fallback
+                var nameParts = studentName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                string avatarInitials = nameParts.Length >= 2
+                    ? $"{nameParts[0][0]}{nameParts[^1][0]}".ToUpper()
+                    : studentName.Substring(0, Math.Min(2, studentName.Length)).ToUpper();
+            }
+
+            <div class="student-avatar-wrap">
+                @if (!string.IsNullOrEmpty(avatarUrl))
+                {
+                    <img src="@avatarUrl" alt="@studentName" class="student-avatar-img" id="sidebarAvatarImg">
+                }
+                else
+                {
+                    <div class="student-avatar-initials" id="sidebarAvatarInitials">@avatarInitials</div>
+                }
+            </div>
+
+            <div class="student-profile-info" id="studentProfileInfo">
+                <span class="student-profile-name">@studentName</span>
+                <span class="student-profile-id">ID: @studentId</span>
+            </div>
+        </div>
+
+        @* ── Divider ── *@
+        <div class="sidebar-divider"></div>
+
+        @* ── Navigation menu ── *@
+        <nav class="sidebar-nav">
+            <ul class="sidebar-menu">
+
+                <li class="sidebar-item">
+                    <a href="@Url.Action("ChangeUser", "Account")"
+                       class="sidebar-link @(ViewBag.ActivePage == "Profile" ? "active" : "")">
+                        <span class="sidebar-icon"><i class="fas fa-user"></i></span>
+                        <span class="sidebar-label">Profile</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item">
+                    <a href="@Url.Action("StudentDashboard", "Dashboard")"
+                       class="sidebar-link @(ViewBag.ActivePage == "Home" || ViewBag.ActivePage == null && ViewContext.RouteData.Values["action"]?.ToString() == "StudentDashboard" ? "active" : "")">
+                        <span class="sidebar-icon"><i class="fas fa-home"></i></span>
+                        <span class="sidebar-label">Home</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item">
+                    @* DB-READY: point to a Calendar controller/action once created *@
+                    <a href="@(Url.Action("Index", "Calendar") ?? "#")"
+                       class="sidebar-link @(ViewBag.ActivePage == "Calendar" ? "active" : "")">
+                        <span class="sidebar-icon"><i class="fas fa-calendar-alt"></i></span>
+                        <span class="sidebar-label">Calendar</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item">
+                    <a href="@Url.Action("Index", "Courses")"
+                       class="sidebar-link @(ViewBag.ActivePage == "Courses" ? "active" : "")">
+                        <span class="sidebar-icon"><i class="fas fa-book"></i></span>
+                        <span class="sidebar-label">Courses</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item">
+                    @* DB-READY: point to a Catalog controller/action once created *@
+                    <a href="@(Url.Action("Index", "Catalog") ?? "#")"
+                       class="sidebar-link @(ViewBag.ActivePage == "Catalog" ? "active" : "")">
+                        <span class="sidebar-icon"><i class="fas fa-search"></i></span>
+                        <span class="sidebar-label">Catalog</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item">
+                    @* DB-READY: point to a Guardians controller/action once created *@
+                    <a href="@(Url.Action("Index", "Guardians") ?? "#")"
+                       class="sidebar-link @(ViewBag.ActivePage == "Guardians" ? "active" : "")">
+                        <span class="sidebar-icon"><i class="fas fa-user-friends"></i></span>
+                        <span class="sidebar-label">Guardians</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item">
+                    @* DB-READY: point to a Help / FAQ controller once created *@
+                    <a href="@(Url.Action("Index", "Help") ?? "#")"
+                       class="sidebar-link @(ViewBag.ActivePage == "Help" ? "active" : "")">
+                        <span class="sidebar-icon"><i class="fas fa-question-circle"></i></span>
+                        <span class="sidebar-label">Help</span>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+
+        @* ── Logout (pinned to sidebar bottom) ── *@
+        <div class="student-sidebar-logout-wrap">
+            <div class="sidebar-divider" style="margin-bottom:8px;"></div>
+            <a href="@Url.Action("Logout", "Account")" class="sidebar-link student-logout-link">
+                <span class="sidebar-icon"><i class="fas fa-sign-out-alt"></i></span>
+                <span class="sidebar-label">Logout</span>
+            </a>
+        </div>
+
+    </aside>
+
+
+    @* ═══════════════════════════════════════════════════════════════
+       TOP NAVIGATION BAR
+       Controller should set these ViewBag properties:
+         ViewBag.PageTitle          → page name shown in topbar (e.g. "Calendar")
+         ViewBag.InboxUnreadCount   → int, unread inbox messages
+         ViewBag.NotifUnreadCount   → int, unread notifications
+       ═══════════════════════════════════════════════════════════════ *@
+    <header class="dash-topbar student-topbar" id="studentTopbar">
+
+        @* ── Left: hamburger toggle + page title ── *@
+        <div class="topbar-left">
+            <button class="topbar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="topbar-title">@(ViewBag.PageTitle ?? "Dashboard")</h1>
+        </div>
+
+        @* ── Center: search bar ── *@
+        <div class="student-topbar-search">
+            <div class="student-search-wrap">
+                <i class="fas fa-search student-search-icon"></i>
+                <input type="text"
+                       class="student-search-input"
+                       placeholder="Search courses, people, events…"
+                       aria-label="Search">
+            </div>
+        </div>
+
+        @* ── Right: inbox · notifications · profile ── *@
+        <div class="topbar-right student-topbar-right">
+
+            @* Inbox *@
+            @{
+                // DB-READY: replace with real unread count from messaging service
+                int inboxCount = ViewBag.InboxUnreadCount != null ? (int)ViewBag.InboxUnreadCount : 0;
+            }
+            <a href="#" class="student-topbar-icon-btn" title="Inbox" aria-label="Inbox">
+                <i class="fas fa-envelope"></i>
+                @if (inboxCount > 0)
+                {
+                    <span class="student-badge">@(inboxCount > 99 ? "99+" : inboxCount.ToString())</span>
+                }
+            </a>
+
+            @* Notifications *@
+            @{
+                // DB-READY: replace with real notification count from notification service
+                int notifCount = ViewBag.NotifUnreadCount != null ? (int)ViewBag.NotifUnreadCount : 0;
+            }
+            <a href="#" class="student-topbar-icon-btn" title="Notifications" aria-label="Notifications">
+                <i class="fas fa-bell"></i>
+                @if (notifCount > 0)
+                {
+                    <span class="student-badge">@(notifCount > 99 ? "99+" : notifCount.ToString())</span>
+                }
+            </a>
+
+            @* Profile avatar dropdown *@
+            <div class="dropdown">
+                <button class="student-topbar-avatar-btn dropdown-toggle"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        aria-label="User menu">
+                    @if (!string.IsNullOrEmpty(avatarUrl))
+                    {
+                        <img src="@avatarUrl" alt="@studentName" class="student-topbar-avatar-img">
+                    }
+                    else
+                    {
+                        <div class="topbar-avatar">@avatarInitials</div>
+                    }
+                    <i class="fas fa-chevron-down student-topbar-caret"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end topbar-dropdown-menu">
+                    <li class="dropdown-header">
+                        <strong>@studentName</strong>
+                        <small class="d-block text-muted">@studentId</small>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="@Url.Action("ChangeUser", "Account")">
+                            <i class="fas fa-user me-2"></i>My Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="@Url.Action("ChangePassword", "Account")">
+                            <i class="fas fa-lock me-2"></i>Change Password
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-danger" href="@Url.Action("Logout", "Account")">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </header>
+
+
+    @* ═══════════════════════════════════════════════════════════════
+       MAIN CONTENT WRAPPER
+       ═══════════════════════════════════════════════════════════════ *@
+    <div class="content-wrapper" id="contentWrapper">
+        <main class="main-content">
+            @RenderBody()
+        </main>
+    </div>
+
+
+    @* ═══════════════════════════════════════════════════════════════
+       SCRIPTS
+       ═══════════════════════════════════════════════════════════════ *@
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.syncfusion.com/ej2/dist/ej2.min.js"></script>
+    <script src="@Url.Content("~/dashboard/js/dashboard.js")?v=@Guid.NewGuid()"></script>
+    <script src="@Url.Content("~/dashboard/js/student-sidebar.js")?v=@Guid.NewGuid()"></script>
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>

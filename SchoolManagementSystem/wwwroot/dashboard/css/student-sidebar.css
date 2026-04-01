@@ -1,0 +1,354 @@
+/* =================================================================
+   student-sidebar.css  —  Student Dashboard Sidebar & Topbar Skin
+   Complements dashboard.css (geometry) and theme-ijed.css (maroon
+   brand palette).  Only student-specific overrides live here.
+   ================================================================= */
+
+
+/* ────────────────────────────────────────────────────────────────
+   STUDENT SIDEBAR  —  dark maroon background (matches mockup)
+   ──────────────────────────────────────────────────────────────── */
+.student-sidebar {
+    background: var(--maroon-gradient,
+        linear-gradient(180deg, #3a000e 0%, #7b1e2b 60%, #a94442 100%));
+    border-right: none;
+    box-shadow: 4px 0 24px rgba(58, 0, 14, 0.30);
+    /* Reserve space below profile header — compensate in nav */
+    padding-top: 0;
+}
+
+/* Divider inside dark sidebar */
+.student-sidebar .sidebar-divider {
+    background: rgba(255, 255, 255, 0.12);
+    margin: 0 16px 8px;
+}
+
+/* Section labels */
+.student-sidebar .sidebar-section-label {
+    color: rgba(255, 255, 255, 0.45);
+}
+
+/* Nav links — default (idle) */
+.student-sidebar .sidebar-link {
+    color: rgba(255, 255, 255, 0.80);
+}
+
+    .student-sidebar .sidebar-link:hover {
+        background: rgba(255, 255, 255, 0.10);
+        color: #ffffff;
+        transform: translateX(2px);
+    }
+
+    /* Active link — white left-border + semi-transparent fill */
+    .student-sidebar .sidebar-link.active {
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+        font-weight: 600;
+        border-left: 3px solid #ffffff;
+        padding-left: 9px;
+    }
+
+        .student-sidebar .sidebar-link.active .sidebar-icon {
+            color: #ffffff;
+        }
+
+/* Logout row at bottom */
+.student-sidebar-logout-wrap {
+    flex-shrink: 0;
+    padding: 0 10px 18px;
+}
+
+.student-logout-link {
+    color: rgba(255, 255, 255, 0.65) !important;
+}
+
+    .student-logout-link:hover {
+        background: rgba(255, 0, 40, 0.20) !important;
+        color: #ffffff !important;
+    }
+
+
+/* ────────────────────────────────────────────────────────────────
+   PROFILE HEADER  —  top section of student sidebar
+   ──────────────────────────────────────────────────────────────── */
+.student-profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 18px 20px;
+    text-align: center;
+    gap: 10px;
+    position: relative;
+    /* Extra top clearance so collapse button doesn't overlap avatar */
+    padding-top: 40px;
+}
+
+/* Avatar wrapper */
+.student-avatar-wrap {
+    flex-shrink: 0;
+}
+
+/* Photo avatar */
+.student-avatar-img {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.70);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.30);
+}
+
+/* Initials fallback avatar */
+.student-avatar-initials {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    border: 3px solid rgba(255, 255, 255, 0.70);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.30);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.04em;
+}
+
+/* Name + ID text */
+.student-profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    transition: opacity 0.22s, width 0.28s;
+    overflow: hidden;
+}
+
+.student-profile-name {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #ffffff;
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+}
+
+.student-profile-id {
+    font-size: 11.5px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.60);
+    white-space: nowrap;
+}
+
+/* Collapse button (chevron) in sidebar header */
+.student-sidebar-collapse-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.75);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    transition: background 0.18s, color 0.18s, transform 0.28s;
+    z-index: 10;
+}
+
+    .student-sidebar-collapse-btn:hover {
+        background: rgba(255, 255, 255, 0.22);
+        color: #ffffff;
+    }
+
+/* Rotate chevron when collapsed */
+.student-sidebar.collapsed .student-sidebar-collapse-btn {
+    transform: rotate(180deg);
+}
+
+
+/* ────────────────────────────────────────────────────────────────
+   COLLAPSED STATE  —  hide profile text + adjust avatar
+   ──────────────────────────────────────────────────────────────── */
+.student-sidebar.collapsed .student-profile-info {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Shrink avatar slightly when collapsed */
+.student-sidebar.collapsed .student-avatar-img,
+.student-sidebar.collapsed .student-avatar-initials {
+    width: 40px;
+    height: 40px;
+    font-size: 15px;
+}
+
+.student-sidebar.collapsed .student-profile-header {
+    padding: 40px 8px 14px;
+}
+
+
+/* ────────────────────────────────────────────────────────────────
+   STUDENT TOPBAR  —  white bar; layout mirrors mockup image
+   ──────────────────────────────────────────────────────────────── */
+
+/* Search bar — centered in topbar */
+.student-topbar-search {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    padding: 0 24px;
+    max-width: 480px;
+    /* Allow it to shrink nicely */
+    min-width: 0;
+}
+
+.student-search-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.student-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--topbar-sub-color, #9a8a8e);
+    font-size: 13px;
+    pointer-events: none;
+}
+
+.student-search-input {
+    width: 100%;
+    height: 36px;
+    padding: 0 14px 0 36px;
+    border: 1px solid #e4dfe0;
+    border-radius: 20px;
+    background: #f8f5f6;
+    font-size: 13px;
+    color: var(--heading-color, #1a0a0e);
+    outline: none;
+    transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+    .student-search-input::placeholder {
+        color: #b8b0b3;
+    }
+
+    .student-search-input:focus {
+        border-color: var(--ijed-600, #a94442);
+        box-shadow: 0 0 0 3px rgba(169, 68, 66, 0.12);
+        background: #ffffff;
+    }
+
+/* Right cluster: icon buttons + avatar */
+.student-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Icon buttons (inbox, bell) */
+.student-topbar-icon-btn {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--topbar-sub-color, #7a6a6e);
+    font-size: 16px;
+    text-decoration: none;
+    transition: background 0.18s, color 0.18s;
+}
+
+    .student-topbar-icon-btn:hover {
+        background: var(--ijed-100, #fdf0f2);
+        color: var(--ijed-700, #7b1e2b);
+    }
+
+/* Unread badge on icon buttons */
+.student-badge {
+    position: absolute;
+    top: 4px;
+    right: 3px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 9px;
+    background: var(--ijed-600, #a94442);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 17px;
+    text-align: center;
+    pointer-events: none;
+}
+
+/* Profile avatar button in topbar */
+.student-topbar-avatar-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 4px 4px 4px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 24px;
+    margin-left: 4px;
+    transition: background 0.18s;
+}
+
+    .student-topbar-avatar-btn::after {
+        display: none !important; /* remove Bootstrap caret */
+    }
+
+    .student-topbar-avatar-btn:hover {
+        background: var(--ijed-100, #fdf0f2);
+    }
+
+.student-topbar-avatar-img {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--ijed-100, #fdf0f2);
+}
+
+.student-topbar-caret {
+    font-size: 10px;
+    color: var(--topbar-sub-color, #9a8a8e);
+}
+
+/* Ensure dash-topbar uses flex with space-between so search centers */
+.dash-topbar {
+    display: flex;
+    align-items: center;
+}
+
+.topbar-left {
+    /* Do not grow — stays left */
+    flex-shrink: 0;
+}
+
+.topbar-right,
+.student-topbar-right {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+
+/* ────────────────────────────────────────────────────────────────
+   RESPONSIVE — hide search on very small screens
+   ──────────────────────────────────────────────────────────────── */
+@media (max-width: 576px) {
+    .student-topbar-search {
+        display: none;
+    }
+}
